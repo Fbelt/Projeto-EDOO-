@@ -13,5 +13,5 @@ class Student {
             cout << "Name: " << name << endl;
             cout << "Age: " << age << endl;
             cout << "Grade: " << grade << endl;
-        }
-}
+        };
+};
