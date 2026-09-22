@@ -5,17 +5,21 @@ using namespace std;
 class Person {
     private:
         string name;
-        int age;
+        string birthday;
         string cpf;
     public:
-        Person(string n = "", int a = 0, string c = "") {
+        Person(string n = "", string b = "", string c = "") {
             name = n;
-            age = a;
+            birthday = b;
             cpf = c;
         }
-        void displayInfo() {
-            cout << "Name: " << name << endl;
-            cout << "Age: " << age << endl;
-            cout << "CPF: " << cpf << endl;
-        }
+
+        string getName() { return name; }
+        string getBirthday() { return birthday; }
+        string getCpf() { return cpf; }
+
+        void setName(string n) { name = n; }
+        void setBirthday(string b) { birthday = b; }
+        void setCpf(string c) { cpf = c; }
+      
 };
