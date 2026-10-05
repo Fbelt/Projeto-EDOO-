@@ -212,6 +212,7 @@ code, .code, pre { font-family: var(--mono); font-size: 13px; font-variant-ligat
   border: 1px solid var(--line-strong); font: 600 var(--t-ui) var(--mono); color: var(--text-2);
 }
 .step p { margin: var(--s-8) 0; color: var(--text-2); font-size: var(--t-ui); }
+.run-sub { margin: var(--s-48) 0 var(--s-8); font-size: var(--t-card); }
 
 /* Equipe */
 .team { display: grid; gap: var(--s-16); grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
@@ -485,6 +486,19 @@ cd Projeto-EDOO-</code></div></div>
       <div class="step"><div><b>Compilar</b><p>A primeira vez demora uns 15 segundos, porque compila o SQLite junto.</p><code class="code">make            <span class="cm"># Linux / Mac</span>
 mingw32-make    <span class="cm"># Windows</span></code></div></div>
       <div class="step"><div><b>Rodar</b><p>Na primeira execução, o banco <code>data/escola.db</code> é criado com dados de exemplo.</p><code class="code">./sistema</code></div></div>
+    </div>
+
+    <h3 class="run-sub">Interface web (bônus)</h3>
+    <p class="section-lead">A interface em React usa as mesmas classes C++ e o mesmo banco. A pasta <code>web/dist</code> já vem compilada, então não precisa de Node.js para usar. No Windows, o MinGW precisa ter suporte a threads (ex: MSYS2 ou WinLibs).</p>
+    <div class="steps">
+      <div class="step"><div><b>Compilar o servidor</b><code class="code">make servidor            <span class="cm"># Linux / Mac</span>
+mingw32-make servidor    <span class="cm"># Windows</span></code></div></div>
+      <div class="step"><div><b>Ligar o servidor</b><p>Ele fica ouvindo em <code>localhost:8080</code> e entrega as telas e os dados.</p><code class="code">./servidor        <span class="cm"># Linux / Mac</span>
+.\servidor.exe    <span class="cm"># Windows (PowerShell)</span></code></div></div>
+      <div class="step"><div><b>Abrir no navegador</b><p>Para testar, entre como professor <b>Ana Souza</b> ou aluno <b>Joao Silva</b>.</p><code class="code">http://localhost:8080</code></div></div>
+      <div class="step"><div><b>Só para quem for mudar as telas</b><p>Com o servidor ligado, rode o React em modo de desenvolvimento e abra a URL que o Vite mostrar (normalmente <code>localhost:5173</code>). No fim, <code>npm run build</code> atualiza o <code>web/dist</code>.</p><code class="code">cd web
+npm install
+npm run dev</code></div></div>
     </div>
   </div>
 </section>
