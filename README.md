@@ -33,7 +33,6 @@ src/       arquivos .cpp (código de cada classe) e o main.cpp
 sqlite/    biblioteca SQLite, baixada de sqlite.org (não foi escrita pelo grupo)
 data/      onde fica o arquivo do banco (escola.db)
 docs/      explicação da parte de cada integrante
-tests/     teste da parte do Integrante 2
 ```
 
 Cada classe tem um par de arquivos: um `.h` e um `.cpp` com o mesmo nome.
