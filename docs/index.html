@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EDOO Acadêmico · Sistema de Gestão Acadêmica</title>
+<meta name="description" content="Sistema de Gestão Acadêmica em C++ com SQLite. Projeto da disciplina CIN0135 (EDOO), CIn/UFPE.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────────────────────────
+   Design tokens
+   · Espaçamento: régua de 8 (4 só para ajuste fino)
+   · Tipografia: 36 / 30 / 24 / 20 / 18 / 16 / 14 / 12
+   · Contraste: texto ≥ 4.5:1, bordas e ícones ≥ 3:1
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --s-4: 4px;  --s-8: 8px;  --s-16: 16px; --s-24: 24px; --s-32: 32px;
+  --s-48: 48px; --s-64: 64px; --s-96: 96px; --s-128: 128px;
+
+  --t-hero: 36px; --t-page: 30px; --t-section: 24px; --t-sub: 20px;
+  --t-card: 18px; --t-body: 16px; --t-ui: 14px; --t-meta: 12px;
+
+  --bg: #0b0d14;
+  --bg-raised: #121522;
+  --bg-term: #0f111a;
+  --line: #262b40;
+  --line-strong: #5a6386;      /* 3.3:1 sobre --bg */
+  --text: #e6e8f0;             /* 15:1 */
+  --text-2: #a3abc4;           /* 8.3:1 */
+  --text-3: #8b93ad;           /* 6.1:1 */
+
+  --violet: #a78bfa;
+  --indigo: #818cf8;
+  --teal:   #2dd4bf;
+  --orchid: #f0abfc;
+  --good:   #4ade80;
+  --bad:    #f87171;
+  --warn:   #fbbf24;
+  --info:   #7dd3fc;
+
+  --radius: 16px;
+  --radius-sm: 8px;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 var(--t-body)/1.6 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+img, svg { max-width: 100%; }
+
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: var(--s-24); }
+
+/* ── Navegação ───────────────────────────────────────────── */
+.nav {
+  position: sticky; top: 0; z-index: 10;
+  backdrop-filter: blur(12px);
+  background: rgb(11 13 20 / .72);
+  border-bottom: 1px solid var(--line);
+}
+.nav .wrap { display: flex; align-items: center; gap: var(--s-24); height: 64px; }
+.brand { display: flex; align-items: center; gap: var(--s-8); font-weight: 700; text-decoration: none; }
+.brand-mark {
+  width: 24px; height: 24px; border-radius: 6px;
+  background: linear-gradient(135deg, var(--violet), var(--teal));
+}
+.nav-links { display: flex; gap: var(--s-24); margin-left: auto; font-size: var(--t-ui); }
+.nav-links a { color: var(--text-2); text-decoration: none; }
+.nav-links a:hover, .nav-links a:focus-visible { color: var(--text); }
+@media (max-width: 720px) { .nav-links { display: none; } }
+
+/* ── Hero ────────────────────────────────────────────────── */
+.hero { position: relative; padding-block: var(--s-96) var(--s-64); overflow: hidden; }
+.hero::before {
+  content: ""; position: absolute; inset: -40% -10% auto; height: 640px; z-index: -1;
+  background:
+    radial-gradient(40% 50% at 30% 40%, rgb(167 139 250 / .22), transparent 70%),
+    radial-gradient(35% 45% at 70% 30%, rgb(45 212 191 / .16), transparent 70%);
+}
+.eyebrow {
+  display: inline-flex; align-items: center; gap: var(--s-8);
+  padding: var(--s-4) var(--s-16) var(--s-4) var(--s-8);
+  border: 1px solid var(--line); border-radius: 999px;
+  font-size: var(--t-meta); color: var(--text-2); background: var(--bg-raised);
+}
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 4px rgb(74 222 128 / .15); }
+h1 {
+  margin: var(--s-24) 0 var(--s-16);
+  font-size: clamp(var(--t-page), 6vw, 56px);
+  line-height: 1.08; letter-spacing: -0.03em; font-weight: 800;
+}
+.grad { background: linear-gradient(90deg, var(--violet), var(--teal)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.lead { max-width: 640px; margin: 0; font-size: var(--t-sub); color: var(--text-2); line-height: 1.5; }
+.actions { display: flex; flex-wrap: wrap; gap: var(--s-16); margin-top: var(--s-32); }
+.btn {
+  display: inline-flex; align-items: center; gap: var(--s-8);
+  height: 48px; padding-inline: var(--s-24); border-radius: 12px;
+  font-weight: 600; font-size: var(--t-ui); text-decoration: none;
+  transition: transform .15s ease, background .15s ease;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
+.btn-primary { background: var(--text); color: var(--bg); }
+.btn-ghost { border: 1px solid var(--line-strong); color: var(--text); }
+
+/* ── Terminal ────────────────────────────────────────────── */
+.demo { margin-top: var(--s-64); }
+.tabs { display: flex; gap: var(--s-8); margin-bottom: var(--s-16); flex-wrap: wrap; }
+.tab {
+  height: 40px; padding-inline: var(--s-16); border-radius: 999px;
+  border: 1px solid var(--line); background: var(--bg-raised); color: var(--text-2);
+  font: 600 var(--t-ui) var(--sans); cursor: pointer;
+}
+.tab[aria-selected="true"] { color: var(--bg); border-color: transparent; }
+.tab[data-k="admin"][aria-selected="true"]   { background: var(--indigo); }
+.tab[data-k="teacher"][aria-selected="true"] { background: var(--teal); }
+.tab[data-k="student"][aria-selected="true"] { background: var(--orchid); }
+.tab:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
+
+.term {
+  border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--bg-term);
+  box-shadow: 0 32px 96px -32px rgb(0 0 0 / .8), 0 0 0 1px rgb(255 255 255 / .02) inset;
+  overflow: hidden;
+}
+.term-bar { display: flex; align-items: center; gap: var(--s-8); height: 40px; padding-inline: var(--s-16); border-bottom: 1px solid var(--line); }
+.term-bar i { width: 12px; height: 12px; border-radius: 50%; background: var(--line-strong); }
+.term-bar span { margin-left: var(--s-8); font: 400 var(--t-meta) var(--mono); color: var(--text-3); }
+.term pre {
+  margin: 0; padding: var(--s-24); overflow-x: auto;
+  font: 400 14px/1.3 var(--mono); color: var(--text);
+  min-height: 456px;
+}
+.c-mut { color: var(--text-3); } .c-brd { color: var(--line-strong); }
+.c-ind { color: var(--indigo); font-weight: 600; } .c-tea { color: var(--teal); font-weight: 600; }
+.c-orc { color: var(--orchid); font-weight: 600; }
+.c-good { color: var(--good); } .c-bad { color: var(--bad); } .c-warn { color: var(--warn); } .c-info { color: var(--info); }
+.c-b { font-weight: 600; color: #fff; }
+.pill { color: var(--bg); font-weight: 700; padding: 0 4px; }
+.pill.ind { background: var(--indigo); } .pill.tea { background: var(--teal); } .pill.orc { background: var(--orchid); }
+.cursor { display: inline-block; width: 8px; height: 1.1em; vertical-align: text-bottom; background: var(--text); animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ── Seções ──────────────────────────────────────────────── */
+section { padding-block: var(--s-96); border-top: 1px solid var(--line); }
+.kicker { font: 600 var(--t-meta)/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--violet); }
+h2 { margin: var(--s-16) 0 var(--s-8); font-size: var(--t-page); letter-spacing: -0.02em; line-height: 1.2; }
+.section-lead { margin: 0 0 var(--s-48); max-width: 640px; color: var(--text-2); }
+
+.grid { display: grid; gap: var(--s-24); grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.card {
+  padding: var(--s-32); border-radius: var(--radius);
+  border: 1px solid var(--line); background: var(--bg-raised);
+}
+.card h3 { margin: var(--s-16) 0 var(--s-8); font-size: var(--t-card); }
+.card p { margin: 0; color: var(--text-2); font-size: var(--t-ui); }
+.card ul { margin: var(--s-16) 0 0; padding: 0; list-style: none; display: grid; gap: var(--s-8); font-size: var(--t-ui); color: var(--text-2); }
+.card li::before { content: "→ "; color: var(--text-3); }
+.icon { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font: 700 var(--t-card) var(--mono); color: var(--bg); }
+
+/* Conceitos de OOP */
+.oop { display: grid; gap: var(--s-16); }
+.oop-row {
+  display: grid; grid-template-columns: 200px 1fr; gap: var(--s-24); align-items: start;
+  padding: var(--s-24); border-radius: var(--radius); border: 1px solid var(--line); background: var(--bg-raised);
+}
+.oop-row h3 { margin: 0; font-size: var(--t-body); }
+.oop-row p { margin: 0 0 var(--s-8); color: var(--text-2); font-size: var(--t-ui); }
+code, .code, pre { font-family: var(--mono); font-size: 13px; font-variant-ligatures: none; }
+.code {
+  display: block; padding: var(--s-16); border-radius: var(--radius-sm);
+  background: var(--bg-term); border: 1px solid var(--line); overflow-x: auto; white-space: pre; color: var(--text);
+}
+.k { color: var(--violet); } .ty { color: var(--teal); } .cm { color: var(--text-3); } .fn { color: var(--info); }
+@media (max-width: 720px) { .oop-row { grid-template-columns: 1fr; gap: var(--s-8); } }
+
+/* UML */
+.uml { padding: var(--s-32); border-radius: var(--radius); border: 1px solid var(--line); background: #f8fafc; overflow-x: auto; }
+.uml .mermaid { min-width: 720px; display: flex; justify-content: center; }
+
+/* Regras */
+.rules { display: grid; gap: var(--s-16); grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.rule { padding: var(--s-24); border-radius: var(--radius); border: 1px solid var(--line); }
+.rule b { display: block; margin-bottom: var(--s-8); font-size: var(--t-body); }
+.rule span { color: var(--text-2); font-size: var(--t-ui); }
+
+/* Vídeo */
+.video {
+  aspect-ratio: 16 / 9; max-width: 100%; border-radius: var(--radius); overflow: hidden;
+  border: 1px solid var(--line); background: var(--bg-raised);
+  display: grid; place-items: center; text-align: center;
+}
+.video iframe { width: 100%; height: 100%; border: 0; }
+.video .soon { color: var(--text-3); font-size: var(--t-ui); }
+.video .soon b { display: block; color: var(--text); font-size: var(--t-sub); margin-bottom: var(--s-8); }
+
+/* Rodar */
+.steps { counter-reset: s; display: grid; gap: var(--s-16); }
+.step { display: grid; grid-template-columns: 40px 1fr; gap: var(--s-16); align-items: start; }
+.step::before {
+  counter-increment: s; content: counter(s);
+  width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+  border: 1px solid var(--line-strong); font: 600 var(--t-ui) var(--mono); color: var(--text-2);
+}
+.step p { margin: var(--s-8) 0; color: var(--text-2); font-size: var(--t-ui); }
+
+/* Equipe */
+.team { display: grid; gap: var(--s-16); grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.person { padding: var(--s-24); border-radius: var(--radius); border: 1px solid var(--line); background: var(--bg-raised); }
+.avatar { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; color: var(--bg); margin-bottom: var(--s-16); }
+.person b { display: block; }
+.person span { color: var(--text-2); font-size: var(--t-ui); }
+
+footer { padding-block: var(--s-48); border-top: 1px solid var(--line); color: var(--text-3); font-size: var(--t-meta); }
+footer .wrap { display: flex; flex-wrap: wrap; gap: var(--s-16); justify-content: space-between; }
+
+/* Entrada suave ao rolar */
+.reveal { opacity: 0; transform: translateY(16px); transition: opacity .6s ease, transform .6s ease; }
+.reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .cursor { animation: none; }
+  html { scroll-behavior: auto; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav" aria-label="Navegação principal">
+  <div class="wrap">
+    <a class="brand" href="#"><span class="brand-mark" aria-hidden="true"></span>EDOO Acadêmico</a>
+    <div class="nav-links">
+      <a href="#perfis">Funcionalidades</a>
+      <a href="#oop">Orientação a Objetos</a>
+      <a href="#uml">UML</a>
+      <a href="#video">Vídeo</a>
+      <a href="#rodar">Como rodar</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow"><span class="dot" aria-hidden="true"></span>CIN0135 · Estruturas de Dados Orientadas a Objetos · CIn/UFPE</span>
+    <h1>Gestão acadêmica no terminal,<br><span class="grad">feita com orientação a objetos.</span></h1>
+    <p class="lead">Alunos, professores, disciplinas, turmas, notas e frequência em um sistema de console em C++ com banco SQLite. A situação de cada aluno é calculada automaticamente.</p>
+    <div class="actions">
+      <a class="btn btn-primary" href="https://github.com/Fbelt/Projeto-EDOO-">Ver código no GitHub ↗</a>
+      <a class="btn btn-ghost" href="#video">▶ Assistir ao vídeo</a>
+    </div>
+
+    <div class="demo reveal">
+      <div class="tabs" role="tablist" aria-label="Escolha um perfil para ver a tela">
+        <button class="tab" role="tab" data-k="admin" aria-selected="true">Administrador</button>
+        <button class="tab" role="tab" data-k="teacher" aria-selected="false">Professor</button>
+        <button class="tab" role="tab" data-k="student" aria-selected="false">Aluno</button>
+      </div>
+      <div class="term" role="tabpanel">
+        <div class="term-bar" aria-hidden="true"><i></i><i></i><i></i><span>./sistema</span></div>
+<pre id="screen" aria-live="polite"></pre>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+<section id="perfis">
+  <div class="wrap">
+    <span class="kicker">Funcionalidades</span>
+    <h2>Três perfis, cada um com o que precisa</h2>
+    <p class="section-lead">Cada perfil tem uma cor própria no terminal, e o caminho “Início › Perfil › Tela” fica sempre no topo para o usuário saber onde está.</p>
+    <div class="grid">
+      <article class="card reveal">
+        <div class="icon" style="background:var(--indigo)">A</div>
+        <h3>Administrador</h3>
+        <p>A secretaria da escola.</p>
+        <ul>
+          <li>CRUD de alunos, professores e disciplinas</li>
+          <li>Criar, encerrar e remover turmas</li>
+          <li>Matricular e desmatricular, respeitando o limite de vagas</li>
+          <li>Busca em todo o sistema</li>
+          <li>Relatório de turma e histórico escolar</li>
+        </ul>
+      </article>
+      <article class="card reveal">
+        <div class="icon" style="background:var(--teal)">P</div>
+        <h3>Professor</h3>
+        <p>O diário de classe.</p>
+        <ul>
+          <li>Ver turmas, alunos, médias e situação</li>
+          <li>Lançar notas para a turma toda de uma vez</li>
+          <li>Corrigir notas já lançadas</li>
+          <li>Fazer a chamada (frequência)</li>
+          <li>Lançar prova final e encerrar a turma</li>
+        </ul>
+      </article>
+      <article class="card reveal">
+        <div class="icon" style="background:var(--orchid)">E</div>
+        <h3>Aluno</h3>
+        <p>Consulta da vida acadêmica.</p>
+        <ul>
+          <li>Disciplinas do semestre, professor e horário</li>
+          <li>Notas, médias e quanto falta para aprovar</li>
+          <li>Frequência com barra de progresso</li>
+          <li>Situação atual e previsão</li>
+          <li>Grade semanal e histórico escolar</li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="oop">
+  <div class="wrap">
+    <span class="kicker">Orientação a Objetos</span>
+    <h2>Onde cada conceito aparece no código</h2>
+    <p class="section-lead">Os requisitos de OOP da disciplina e o trecho do projeto que mostra cada um.</p>
+    <div class="oop">
+      <div class="oop-row reveal">
+        <h3>Herança e classe abstrata</h3>
+        <div>
+          <p><code>Person</code> tem o método puro <code>exibirInfo() = 0</code>, então não dá para criar uma <code>Person</code> direto. <code>Student</code> e <code>Teacher</code> herdam dela.</p>
+<code class="code"><span class="k">class</span> <span class="ty">Student</span> : <span class="k">public</span> <span class="ty">Person</span> { ... };
+<span class="k">virtual void</span> <span class="fn">exibirInfo</span>() <span class="k">const</span> = 0;  <span class="cm">// em Person</span></code>
+        </div>
+      </div>
+      <div class="oop-row reveal">
+        <h3>Polimorfismo</h3>
+        <div>
+          <p><code>calculateStatus()</code> é virtual: <code>FinalExamEnrollment</code> troca a regra de aprovação. No menu, o mesmo ponteiro <code>Person*</code> mostra a ficha certa de aluno ou de professor.</p>
+<code class="code"><span class="ty">Person</span>* p = aluno;
+p-><span class="fn">exibirInfo</span>();          <span class="cm">// roda Student::exibirInfo()</span>
+e-><span class="fn">calculateStatus</span>();     <span class="cm">// regra normal ou com prova final</span></code>
+        </div>
+      </div>
+      <div class="oop-row reveal">
+        <h3>Encapsulamento</h3>
+        <div><p>CPF, notas e frequência são <code>private</code>. Só dá para mexer neles por getters e setters, que validam o valor. Por exemplo, <code>addGrade()</code> recusa nota fora de 0 a 10.</p></div>
+      </div>
+      <div class="oop-row reveal">
+        <h3>Ponteiros e referências</h3>
+        <div>
+          <p>A turma guarda as matrículas como ponteiros. Os métodos recebem objetos por referência, sem copiar.</p>
+<code class="code"><span class="ty">vector</span>&lt;<span class="ty">Enrollment</span>*&gt; enrollments;
+<span class="k">bool</span> <span class="fn">enroll</span>(<span class="ty">Student</span>&amp; s);</code>
+        </div>
+      </div>
+      <div class="oop-row reveal">
+        <h3>Singleton e Factory (bônus)</h3>
+        <div>
+          <p><code>Database</code> tem construtor privado e uma única instância. <code>PersonFactory</code> cria um aluno ou um professor a partir de um texto.</p>
+<code class="code"><span class="ty">Database</span>&amp; db = <span class="ty">Database</span>::<span class="fn">getInstance</span>();
+<span class="ty">Person</span>* p = <span class="ty">PersonFactory</span>::<span class="fn">criar</span>(<span class="ty">"aluno"</span>, ...);</code>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="uml">
+  <div class="wrap">
+    <span class="kicker">Modelagem</span>
+    <h2>Diagrama de classes (UML)</h2>
+    <p class="section-lead">As classes de domínio não têm SQL dentro delas. Quem conversa com o banco são os repositórios.</p>
+    <div class="uml reveal">
+<pre class="mermaid">
+classDiagram
+  direction LR
+  class Person {
+    &lt;&lt;abstract&gt;&gt;
+    -string name
+    -string cpf
+    -string birthday
+    -string contato
+    +exibirInfo()* void
+  }
+  class Student {
+    -string matricula
+    -string curso
+    +exibirInfo() void
+  }
+  class Teacher {
+    -string matriculaFuncional
+    -vector~string~ disciplinas
+    +exibirInfo() void
+  }
+  class Discipline {
+    -string code
+    -string name
+    -int workload
+    -bool hasFinalExam
+    -Teacher* teacher
+  }
+  class ClassGroup {
+    -string code
+    -string semester
+    -string schedule
+    -int capacity
+    -bool finished
+    -vector~Enrollment*~ enrollments
+    +enroll(Student&) bool
+    +unenroll(Student&) bool
+    +getStatus(Enrollment*) string
+    +finish() void
+  }
+  class Enrollment {
+    -Student* student
+    -vector~double~ grades
+    -int classes
+    -int presences
+    -double finalGrade
+    +calculateAverage() double
+    +calculateAttendance() double
+    +calculateStatus() string
+  }
+  class FinalExamEnrollment {
+    +calculateStatus() string
+  }
+  class Database {
+    &lt;&lt;singleton&gt;&gt;
+    -Database()
+    +getInstance()$ Database&
+    +execute(string) void
+    +query(string) vector
+  }
+  class PersonFactory {
+    +criar(tipo, ...)$ Person*
+  }
+  Person <|-- Student
+  Person <|-- Teacher
+  Enrollment <|-- FinalExamEnrollment
+  Discipline --> Teacher : responsável
+  ClassGroup --> Discipline
+  ClassGroup --> Teacher
+  ClassGroup *-- Enrollment : matrículas
+  Enrollment --> Student
+  PersonFactory ..> Person : cria
+</pre>
+    </div>
+  </div>
+</section>
+
+<section id="regras">
+  <div class="wrap">
+    <span class="kicker">Regras de negócio</span>
+    <h2>Como a situação é calculada</h2>
+    <p class="section-lead">Enquanto a turma está aberta, o aluno aparece como “Cursando”. Quando o professor encerra, vale a regra da disciplina.</p>
+    <div class="rules">
+      <div class="rule reveal"><b class="c-good">✔ Sem prova final</b><span>Frequência abaixo de 75% reprova por falta. Média 7 ou mais aprova.</span></div>
+      <div class="rule reveal"><b class="c-warn">⚑ Com prova final</b><span>Média 7 ou mais aprova, abaixo de 3 reprova. Entre 3 e 7, passa se (média + final) / 2 for 5 ou mais.</span></div>
+      <div class="rule reveal"><b class="c-info">◷ Vagas</b><span>A turma tem limite de vagas, o mesmo aluno não entra duas vezes, e turma encerrada não aceita matrícula.</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="video">
+  <div class="wrap">
+    <span class="kicker">Apresentação</span>
+    <h2>Vídeo no YouTube</h2>
+    <p class="section-lead">As funcionalidades e os conceitos de orientação a objetos explicados pelo grupo.</p>
+    <!-- Para publicar: troque VIDEO_ID abaixo pelo código do vídeo (o que vem depois de "watch?v=") -->
+    <div class="video reveal" id="video-box" data-video-id="VIDEO_ID">
+      <div class="soon"><b>Em breve</b>O vídeo será publicado aqui.</div>
+    </div>
+  </div>
+</section>
+
+<section id="rodar">
+  <div class="wrap">
+    <span class="kicker">Como rodar</span>
+    <h2>Compilar e executar</h2>
+    <p class="section-lead">Você precisa do g++ (MinGW no Windows). Não tem dependência externa: o SQLite vem junto no projeto.</p>
+    <div class="steps">
+      <div class="step"><div><b>Clonar o repositório</b><code class="code">git clone https://github.com/Fbelt/Projeto-EDOO-.git
+cd Projeto-EDOO-</code></div></div>
+      <div class="step"><div><b>Compilar</b><p>A primeira vez demora uns 15 segundos, porque compila o SQLite junto.</p><code class="code">make            <span class="cm"># Linux / Mac</span>
+mingw32-make    <span class="cm"># Windows</span></code></div></div>
+      <div class="step"><div><b>Rodar</b><p>Na primeira execução, o banco <code>data/escola.db</code> é criado com dados de exemplo.</p><code class="code">./sistema</code></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="equipe">
+  <div class="wrap">
+    <span class="kicker">Equipe</span>
+    <h2>Quem fez</h2>
+    <p class="section-lead">Grupo de quatro pessoas, uma parte para cada um.</p>
+    <div class="team">
+      <div class="person reveal"><div class="avatar" style="background:var(--violet)">PH</div><b>Pedro Henrique</b><span>Pessoa, Aluno, Professor e Factory</span></div>
+      <div class="person reveal"><div class="avatar" style="background:var(--indigo)">FB</div><b>Felipe Belfort</b><span>Disciplina, Turma e Matrícula</span></div>
+      <div class="person reveal"><div class="avatar" style="background:var(--teal)">GG</div><b>Gabriel Geller</b><span>Estrutura do projeto e banco SQLite</span></div>
+      <div class="person reveal"><div class="avatar" style="background:var(--orchid)">LH</div><b>Luis Henrique</b><span>Interface de console, relatório e vídeo</span></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>EDOO Acadêmico · CIN0135 · CIn/UFPE · 2026.2</span>
+    <a href="https://github.com/Fbelt/Projeto-EDOO-">github.com/Fbelt/Projeto-EDOO-</a>
+  </div>
+</footer>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";
+  mermaid.initialize({ startOnLoad: true, theme: "neutral", fontFamily: "Inter, sans-serif" });
+</script>
+<script>
+// ── Telas do terminal (baseadas na saída real do programa) ──
+const B = s => `<span class="c-brd">${s}</span>`;
+const M = s => `<span class="c-mut">${s}</span>`;
+const head = (pill, cls, path, last) =>
+  `  <span class="${cls}">◆ EDOO</span>${M(" Acadêmico")}${" ".repeat(46 - pill.length)}<span class="pill ${cls === 'c-ind' ? 'ind' : cls === 'c-tea' ? 'tea' : 'orc'}"> ${pill} </span>
+  ${M("Início › " + path)}<span class="c-b">${last}</span>
+  ${B("─".repeat(66))}
+
+`;
+
+const screens = {
+  admin:
+head("ADMINISTRADOR", "c-ind", "", "Administrador") +
+`  <span class="c-ind">▍</span><span class="c-b">Painel da Secretaria</span>
+    ${M("Visão geral do sistema")}
+
+  ${B("╭─────────────╮ ╭─────────────╮ ╭─────────────╮ ╭─────────────╮")}
+  ${B("│")} <span class="c-ind">4</span>           ${B("│")} ${B("│")} <span class="c-ind">2</span>           ${B("│")} ${B("│")} <span class="c-ind">2</span>           ${B("│")} ${B("│")} <span class="c-ind">33%</span>         ${B("│")}
+  ${B("│")} ${M("alunos")}      ${B("│")} ${B("│")} ${M("professores")} ${B("│")} ${B("│")} ${M("disciplinas")} ${B("│")} ${B("│")} ${M("aprovação")}   ${B("│")}
+  ${B("╰─────────────╯ ╰─────────────╯ ╰─────────────╯ ╰─────────────╯")}
+
+  ${M("CADASTROS")} ${B("─".repeat(56))}
+     <span class="c-ind">1</span> ${B("│")} Alunos            ${M("listar, cadastrar, editar, remover")}
+     <span class="c-ind">2</span> ${B("│")} Professores       ${M("listar, cadastrar, editar, remover")}
+     <span class="c-ind">3</span> ${B("│")} Disciplinas       ${M("listar, cadastrar, editar, remover")}
+
+  ${M("TURMAS")} ${B("─".repeat(59))}
+     <span class="c-ind">4</span> ${B("│")} Turmas            ${M("criar, encerrar, remover")}
+     <span class="c-ind">5</span> ${B("│")} Matrículas        ${M("matricular e desmatricular")}
+
+     ${M("0")} ${B("│")} ${M("← Trocar de perfil")}
+
+  <span class="c-ind">❯</span> Escolha uma opção${M(":")} <span class="cursor"></span>`,
+
+  teacher:
+head("PROFESSOR", "c-tea", "Professor › Diário › ", "EDOO-2026.2") +
+`  <span class="c-tea">▍</span><span class="c-b">Estruturas de Dados Orientadas a Objetos</span>
+    ${M("EDOO-2026.2  ·  2026.2  ·  TER 10h-12h  ·  Prof. Ana Souza")}
+
+  ${B("╭────────────────┬────────────┬───────┬─────────────────┬──────────────────╮")}
+  ${B("│")} <span class="c-tea">Aluno</span>          ${B("│")} <span class="c-tea">Notas</span>      ${B("│")} <span class="c-tea">Média</span> ${B("│")} <span class="c-tea">Frequência</span>      ${B("│")} <span class="c-tea">Previsão</span>         ${B("│")}
+  ${B("├────────────────┼────────────┼───────┼─────────────────┼──────────────────┤")}
+  ${B("│")} Joao Silva     ${B("│")} 7.5 ${M("·")} 6.0  ${B("│")}   <span class="c-warn">6.8</span> ${B("│")} <span class="c-good">████████</span>${B("░░")}  83% ${B("│")} <span class="c-warn">⚑ Em prova final</span> ${B("│")}
+  ${B("│")} Maria Oliveira ${B("│")} 4.0 ${M("·")} 5.0  ${B("│")}   <span class="c-warn">4.5</span> ${B("│")} <span class="c-good">██████████</span> 100% ${B("│")} <span class="c-warn">⚑ Em prova final</span> ${B("│")}
+  ${B("│")} Julia Costa    ${B("│")} 9.0 ${M("·")} 10.0 ${B("│")}   <span class="c-good">9.5</span> ${B("│")} <span class="c-good">██████████</span> 100% ${B("│")} <span class="c-good">✔ Aprovado</span>       ${B("│")}
+  ${B("╰────────────────┴────────────┴───────┴─────────────────┴──────────────────╯")}
+
+  ${B("╭───────────────────╮ ╭───────────────────╮ ╭───────────────────╮")}
+  ${B("│")} <span class="c-tea">6.9</span>               ${B("│")} ${B("│")} <span class="c-tea">1 de 3</span>            ${B("│")} ${B("│")} <span class="c-tea">33%</span>               ${B("│")}
+  ${B("│")} ${M("média da turma")}    ${B("│")} ${B("│")} ${M("aprovados (prev.)")} ${B("│")} ${B("│")} ${M("aprovação (prev.)")} ${B("│")}
+  ${B("╰───────────────────╯ ╰───────────────────╯ ╰───────────────────╯")}
+
+  ${M("Regra: média ≥ 7 aprova · < 3 reprova · entre 3 e 7 faz prova final")}
+
+  ${M("Pressione ENTER para continuar…")} <span class="cursor"></span>`,
+
+  student:
+head("ALUNO", "c-orc", "Aluno › ", "Horário") +
+`  <span class="c-orc">▍</span><span class="c-b">Horário semanal</span>
+    ${M("Turmas do semestre atual")}
+
+  ${B("╭─────────┬─────────┬─────────┬─────────┬─────────┬─────────╮")}
+  ${B("│")} <span class="c-orc">Horário</span> ${B("│")} <span class="c-orc">SEG</span>     ${B("│")} <span class="c-orc">TER</span>     ${B("│")} <span class="c-orc">QUA</span>     ${B("│")} <span class="c-orc">QUI</span>     ${B("│")} <span class="c-orc">SEX</span>     ${B("│")}
+  ${B("├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤")}
+  ${B("│")} 8h-10h  ${B("│")} <span class="c-orc">CIN0130</span> ${B("│")}   ${M("·")}     ${B("│")} <span class="c-orc">CIN0130</span> ${B("│")}   ${M("·")}     ${B("│")}   ${M("·")}     ${B("│")}
+  ${B("│")} 10h-12h ${B("│")}   ${M("·")}     ${B("│")} <span class="c-orc">CIN0135</span> ${B("│")}   ${M("·")}     ${B("│")} <span class="c-orc">CIN0135</span> ${B("│")}   ${M("·")}     ${B("│")}
+  ${B("╰─────────┴─────────┴─────────┴─────────┴─────────┴─────────╯")}
+
+  <span class="c-orc">CIN0130</span>  Introducao a Programacao
+  <span class="c-orc">CIN0135</span>  Estruturas de Dados Orientadas a Objetos
+
+  ${M("SITUAÇÃO")} ${B("─".repeat(57))}
+    Estruturas de Dados OO   <span class="c-info">◷ Cursando</span>     ${M("previsão")} <span class="c-warn">⚑ Em prova final</span>
+    Introducao a Programacao <span class="c-good">✔ Aprovado</span>     ${M("média")} 8.5
+
+  ${M("Pressione ENTER para continuar…")} <span class="cursor"></span>`
+};
+
+const screen = document.getElementById("screen");
+const tabs = document.querySelectorAll(".tab");
+function show(key) {
+  screen.innerHTML = screens[key];
+  tabs.forEach(t => t.setAttribute("aria-selected", t.dataset.k === key));
+}
+tabs.forEach(t => t.addEventListener("click", () => show(t.dataset.k)));
+show("admin");
+
+// ── Vídeo: quando o VIDEO_ID for preenchido, mostra o player ──
+const box = document.getElementById("video-box");
+const id = box.dataset.videoId;
+if (id && id !== "VIDEO_ID") {
+  box.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}" title="Vídeo de apresentação do projeto" allowfullscreen></iframe>`;
+}
+
+// ── Animação de entrada ao rolar ──
+const io = new IntersectionObserver(entries => entries.forEach(e => {
+  if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+}), { threshold: 0.12 });
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+</script>
+</body>
+</html>
