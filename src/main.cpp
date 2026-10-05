@@ -1,50 +1,39 @@
-#include <iostream>
-#include <vector>
 #include "Database.h"
 #include "Seed.h"
-#include "StudentRepository.h"
-#include "TeacherRepository.h"
-#include "DisciplineRepository.h"
-#include "ClassGroupRepository.h"
+#include "SchoolData.h"
+#include "Menus.h"
+#include "Ui.h"
 
 using namespace std;
 
-// main mínimo: abre o banco, cria as tabelas, coloca os dados de exemplo
-// e mostra as turmas. O menu de verdade é feito pelo Integrante 4.
+// Começo do programa: abre o banco, carrega os dados e abre o menu
 int main() {
+    ui::setup();
+    ui::splash();
+
+    // Banco de dados (Singleton: sempre a mesma conexão)
     Database& db = Database::getInstance();
     if (!db.open("data/escola.db")) {
+        ui::error("Não foi possível abrir data/escola.db.", "Rode o programa de dentro da pasta do projeto.");
         return 1;
     }
+    ui::step("Banco de dados SQLite conectado");
     db.createTables();
-    seedDatabase();
+    seedDatabase();   // só coloca dados de exemplo se o banco estiver vazio
+    ui::step("Tabelas prontas");
 
-    // Carrega tudo do banco para a memória.
-    // A ordem importa: turmas precisam dos alunos, professores e disciplinas
-    StudentRepository studentRepo;
-    TeacherRepository teacherRepo;
-    DisciplineRepository disciplineRepo;
-    ClassGroupRepository groupRepo;
+    // Carrega tudo do banco para a memória
+    SchoolData data;
+    loadData(data);
+    ui::step(to_string(data.students.size()) + " alunos, " + to_string(data.teachers.size()) + " professores e " +
+             to_string(data.groups.size()) + " turmas carregados");
+    ui::pause();
 
-    vector<Student*> students = studentRepo.findByName("");
-    vector<Teacher*> teachers = teacherRepo.findByName("");
-    vector<Discipline*> disciplines = disciplineRepo.findByName("", teachers);
-    vector<ClassGroup*> groups = groupRepo.findAll(disciplines, teachers, students);
+    mainMenu(data);
 
-    cout << students.size() << " alunos, " << teachers.size() << " professores, "
-         << disciplines.size() << " disciplinas, " << groups.size() << " turmas" << endl;
-
-    for (ClassGroup* g : groups) {
-        cout << endl;
-        g->printReport();
-    }
-
-    // Libera a memória (turmas primeiro, porque elas apontam para os outros)
-    for (ClassGroup* g : groups) delete g;
-    for (Discipline* d : disciplines) delete d;
-    for (Teacher* t : teachers) delete t;
-    for (Student* s : students) delete s;
-
+    // Fim: libera a memória e fecha o banco
+    freeData(data);
     db.close();
+    ui::goodbye();
     return 0;
 }

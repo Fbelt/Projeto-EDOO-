@@ -1,817 +1,620 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Gestão Acadêmica</title>
-  <meta name="description" content="Projeto de EDOO (CIN0135) - CIn/UFPE, feito em C++ com SQLite">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    /* Cores do site: verde e preto */
-    :root {
-      --bg: #050705;
-      --panel: #0c110d;
-      --panel-2: #111a13;
-      --line: #1e2e22;
-      --text: #d7f5dd;
-      --muted: #7f9c86;
-      --green: #39ff7a;
-      --green-dim: #1f9d4c;
-      --red: #ff5f56;
-      --yellow: #ffbd2e;
-      --mono: "JetBrains Mono", Consolas, monospace;
-      --sans: "Space Grotesk", system-ui, sans-serif;
-    }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EDOO Acadêmico · Sistema de Gestão Acadêmica</title>
+<meta name="description" content="Sistema de Gestão Acadêmica em C++ com SQLite. Projeto da disciplina CIN0135 (EDOO), CIn/UFPE.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────────────────────────
+   Design tokens
+   · Espaçamento: régua de 8 (4 só para ajuste fino)
+   · Tipografia: 36 / 30 / 24 / 20 / 18 / 16 / 14 / 12
+   · Contraste: texto ≥ 4.5:1, bordas e ícones ≥ 3:1
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --s-4: 4px;  --s-8: 8px;  --s-16: 16px; --s-24: 24px; --s-32: 32px;
+  --s-48: 48px; --s-64: 64px; --s-96: 96px; --s-128: 128px;
 
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+  --t-hero: 36px; --t-page: 30px; --t-section: 24px; --t-sub: 20px;
+  --t-card: 18px; --t-body: 16px; --t-ui: 14px; --t-meta: 12px;
 
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--sans);
-      line-height: 1.6;
-      /* grade sutil no fundo, estilo papel milimetrado */
-      background-image:
-        linear-gradient(rgba(57, 255, 122, 0.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(57, 255, 122, 0.035) 1px, transparent 1px);
-      background-size: 32px 32px;
-    }
+  --bg: #0b0d14;
+  --bg-raised: #121522;
+  --bg-term: #0f111a;
+  --line: #262b40;
+  --line-strong: #5a6386;      /* 3.3:1 sobre --bg */
+  --text: #e6e8f0;             /* 15:1 */
+  --text-2: #a3abc4;           /* 8.3:1 */
+  --text-3: #8b93ad;           /* 6.1:1 */
 
-    a { color: var(--green); }
-    code, pre, .mono { font-family: var(--mono); }
+  --violet: #a78bfa;
+  --indigo: #818cf8;
+  --teal:   #2dd4bf;
+  --orchid: #f0abfc;
+  --good:   #4ade80;
+  --bad:    #f87171;
+  --warn:   #fbbf24;
+  --info:   #7dd3fc;
 
-    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+  --radius: 16px;
+  --radius-sm: 8px;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
 
-    /* ---------- barra de navegação ---------- */
-    nav {
-      position: sticky; top: 0; z-index: 10;
-      background: rgba(5, 7, 5, 0.88);
-      backdrop-filter: blur(6px);
-      border-bottom: 1px solid var(--line);
-    }
-    nav .wrap { display: flex; align-items: center; gap: 20px; height: 56px; overflow-x: auto; }
-    nav .logo { font-family: var(--mono); font-weight: 800; color: var(--green); white-space: nowrap; text-decoration: none; }
-    nav .links { display: flex; gap: 16px; margin-left: auto; }
-    nav .links a {
-      font-family: var(--mono); font-size: 0.85rem; color: var(--muted);
-      text-decoration: none; white-space: nowrap;
-    }
-    nav .links a:hover { color: var(--green); }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 var(--t-body)/1.6 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+img, svg { max-width: 100%; }
 
-    /* ---------- topo ---------- */
-    .hero { padding: 64px 0 40px; display: grid; grid-template-columns: 1fr 1.1fr; gap: 40px; align-items: center; }
-    .tag {
-      display: inline-block; font-family: var(--mono); font-size: 0.8rem;
-      color: var(--green); border: 1px solid var(--green-dim); border-radius: 999px; padding: 3px 12px;
-    }
-    .hero h1 {
-      font-size: clamp(2.2rem, 5.5vw, 3.6rem); line-height: 1.05; margin: 18px 0 16px; letter-spacing: -0.02em;
-    }
-    .hero h1 span { color: var(--green); }
-    .hero p { color: var(--muted); font-size: 1.05rem; margin: 0 0 24px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: var(--s-24); }
 
-    .botoes { display: flex; gap: 10px; flex-wrap: wrap; }
-    .botao {
-      font-family: var(--mono); font-size: 0.9rem; font-weight: 600;
-      padding: 10px 16px; border-radius: 6px; text-decoration: none;
-      border: 1px solid var(--green); color: var(--bg); background: var(--green);
-    }
-    .botao.vazado { background: transparent; color: var(--green); }
-    .botao.desativado { border-color: var(--line); color: var(--muted); background: transparent; pointer-events: none; }
+/* ── Navegação ───────────────────────────────────────────── */
+.nav {
+  position: sticky; top: 0; z-index: 10;
+  backdrop-filter: blur(12px);
+  background: rgb(11 13 20 / .72);
+  border-bottom: 1px solid var(--line);
+}
+.nav .wrap { display: flex; align-items: center; gap: var(--s-24); height: 64px; }
+.brand { display: flex; align-items: center; gap: var(--s-8); font-weight: 700; text-decoration: none; }
+.brand-mark {
+  width: 24px; height: 24px; border-radius: 6px;
+  background: linear-gradient(135deg, var(--violet), var(--teal));
+}
+.nav-links { display: flex; gap: var(--s-24); margin-left: auto; font-size: var(--t-ui); }
+.nav-links a { color: var(--text-2); text-decoration: none; }
+.nav-links a:hover, .nav-links a:focus-visible { color: var(--text); }
+@media (max-width: 720px) { .nav-links { display: none; } }
 
-    /* janela de terminal */
-    .terminal {
-      background: #020302; border: 1px solid var(--line); border-radius: 10px;
-      box-shadow: 0 0 0 1px rgba(57, 255, 122, 0.06), 0 20px 60px rgba(57, 255, 122, 0.08);
-      overflow: hidden;
-    }
-    .terminal .barra {
-      display: flex; align-items: center; gap: 7px; padding: 10px 14px;
-      background: var(--panel); border-bottom: 1px solid var(--line);
-    }
-    .terminal .barra i { width: 11px; height: 11px; border-radius: 50%; display: block; }
-    .terminal .barra span { margin-left: 8px; font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
-    .terminal pre {
-      margin: 0; padding: 18px; min-height: 330px; font-size: 0.82rem; line-height: 1.65;
-      color: var(--text); white-space: pre-wrap; word-break: break-word;
-    }
-    .terminal .prompt { color: var(--green); }
-    .terminal .ok { color: var(--green); }
-    .terminal .bad { color: var(--red); }
-    .terminal .cur { color: var(--yellow); }
-    .cursor { display: inline-block; width: 8px; height: 1em; background: var(--green); vertical-align: -2px; animation: pisca 1s steps(1) infinite; }
-    @keyframes pisca { 50% { opacity: 0; } }
+/* ── Hero ────────────────────────────────────────────────── */
+.hero { position: relative; padding-block: var(--s-96) var(--s-64); overflow: hidden; }
+.hero::before {
+  content: ""; position: absolute; inset: -40% -10% auto; height: 640px; z-index: -1;
+  background:
+    radial-gradient(40% 50% at 30% 40%, rgb(167 139 250 / .22), transparent 70%),
+    radial-gradient(35% 45% at 70% 30%, rgb(45 212 191 / .16), transparent 70%);
+}
+.eyebrow {
+  display: inline-flex; align-items: center; gap: var(--s-8);
+  padding: var(--s-4) var(--s-16) var(--s-4) var(--s-8);
+  border: 1px solid var(--line); border-radius: 999px;
+  font-size: var(--t-meta); color: var(--text-2); background: var(--bg-raised);
+}
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 4px rgb(74 222 128 / .15); }
+h1 {
+  margin: var(--s-24) 0 var(--s-16);
+  font-size: clamp(var(--t-page), 6vw, 56px);
+  line-height: 1.08; letter-spacing: -0.03em; font-weight: 800;
+}
+.grad { background: linear-gradient(90deg, var(--violet), var(--teal)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.lead { max-width: 640px; margin: 0; font-size: var(--t-sub); color: var(--text-2); line-height: 1.5; }
+.actions { display: flex; flex-wrap: wrap; gap: var(--s-16); margin-top: var(--s-32); }
+.btn {
+  display: inline-flex; align-items: center; gap: var(--s-8);
+  height: 48px; padding-inline: var(--s-24); border-radius: 12px;
+  font-weight: 600; font-size: var(--t-ui); text-decoration: none;
+  transition: transform .15s ease, background .15s ease;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
+.btn-primary { background: var(--text); color: var(--bg); }
+.btn-ghost { border: 1px solid var(--line-strong); color: var(--text); }
 
-    /* ---------- números ---------- */
-    .numeros { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: 10px; background: var(--panel); margin-bottom: 72px; }
-    .numeros div { padding: 18px; border-right: 1px solid var(--line); }
-    .numeros div:last-child { border-right: none; }
-    .numeros b { display: block; font-family: var(--mono); font-size: 1.8rem; color: var(--green); }
-    .numeros small { color: var(--muted); }
+/* ── Terminal ────────────────────────────────────────────── */
+.demo { margin-top: var(--s-64); }
+.tabs { display: flex; gap: var(--s-8); margin-bottom: var(--s-16); flex-wrap: wrap; }
+.tab {
+  height: 40px; padding-inline: var(--s-16); border-radius: 999px;
+  border: 1px solid var(--line); background: var(--bg-raised); color: var(--text-2);
+  font: 600 var(--t-ui) var(--sans); cursor: pointer;
+}
+.tab[aria-selected="true"] { color: var(--bg); border-color: transparent; }
+.tab[data-k="admin"][aria-selected="true"]   { background: var(--indigo); }
+.tab[data-k="teacher"][aria-selected="true"] { background: var(--teal); }
+.tab[data-k="student"][aria-selected="true"] { background: var(--orchid); }
+.tab:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
 
-    /* ---------- seções ---------- */
-    section { margin-bottom: 88px; scroll-margin-top: 72px; }
-    .secao-topo { margin-bottom: 28px; }
-    .secao-topo .num { font-family: var(--mono); color: var(--green); font-size: 0.85rem; }
-    .secao-topo h2 { font-size: clamp(1.6rem, 3.5vw, 2.2rem); margin: 4px 0 8px; letter-spacing: -0.01em; }
-    .secao-topo p { color: var(--muted); margin: 0; max-width: 680px; }
+.term {
+  border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--bg-term);
+  box-shadow: 0 32px 96px -32px rgb(0 0 0 / .8), 0 0 0 1px rgb(255 255 255 / .02) inset;
+  overflow: hidden;
+}
+.term-bar { display: flex; align-items: center; gap: var(--s-8); height: 40px; padding-inline: var(--s-16); border-bottom: 1px solid var(--line); }
+.term-bar i { width: 12px; height: 12px; border-radius: 50%; background: var(--line-strong); }
+.term-bar span { margin-left: var(--s-8); font: 400 var(--t-meta) var(--mono); color: var(--text-3); }
+.term pre {
+  margin: 0; padding: var(--s-24); overflow-x: auto;
+  font: 400 14px/1.3 var(--mono); color: var(--text);
+  min-height: 456px;
+}
+.c-mut { color: var(--text-3); } .c-brd { color: var(--line-strong); }
+.c-ind { color: var(--indigo); font-weight: 600; } .c-tea { color: var(--teal); font-weight: 600; }
+.c-orc { color: var(--orchid); font-weight: 600; }
+.c-good { color: var(--good); } .c-bad { color: var(--bad); } .c-warn { color: var(--warn); } .c-info { color: var(--info); }
+.c-b { font-weight: 600; color: #fff; }
+.pill { color: var(--bg); font-weight: 700; padding: 0 4px; }
+.pill.ind { background: var(--indigo); } .pill.tea { background: var(--teal); } .pill.orc { background: var(--orchid); }
+.cursor { display: inline-block; width: 8px; height: 1.1em; vertical-align: text-bottom; background: var(--text); animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
 
-    .painel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+/* ── Seções ──────────────────────────────────────────────── */
+section { padding-block: var(--s-96); border-top: 1px solid var(--line); }
+.kicker { font: 600 var(--t-meta)/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--violet); }
+h2 { margin: var(--s-16) 0 var(--s-8); font-size: var(--t-page); letter-spacing: -0.02em; line-height: 1.2; }
+.section-lead { margin: 0 0 var(--s-48); max-width: 640px; color: var(--text-2); }
 
-    /* regras */
-    .regras { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
-    .regra { padding: 18px; }
-    .regra code { color: var(--green); font-size: 0.82rem; }
-    .regra h3 { margin: 8px 0 6px; font-size: 1.05rem; }
-    .regra p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+.grid { display: grid; gap: var(--s-24); grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.card {
+  padding: var(--s-32); border-radius: var(--radius);
+  border: 1px solid var(--line); background: var(--bg-raised);
+}
+.card h3 { margin: var(--s-16) 0 var(--s-8); font-size: var(--t-card); }
+.card p { margin: 0; color: var(--text-2); font-size: var(--t-ui); }
+.card ul { margin: var(--s-16) 0 0; padding: 0; list-style: none; display: grid; gap: var(--s-8); font-size: var(--t-ui); color: var(--text-2); }
+.card li::before { content: "→ "; color: var(--text-3); }
+.icon { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font: 700 var(--t-card) var(--mono); color: var(--bg); }
 
-    /* diagrama de classes */
-    .diagrama { padding: 28px 18px; display: flex; flex-wrap: wrap; gap: 28px; justify-content: center; margin-bottom: 20px; }
-    .arvore { display: flex; flex-direction: column; align-items: center; }
-    .caixa {
-      font-family: var(--mono); font-size: 0.85rem; border: 1px solid var(--green-dim);
-      background: #07100a; border-radius: 6px; padding: 8px 14px; text-align: center;
-    }
-    .caixa small { display: block; color: var(--muted); font-size: 0.7rem; }
-    .caixa.abstrata { border-style: dashed; }
-    .caixa.abstrata b { font-style: italic; }
-    .haste { width: 1px; height: 18px; background: var(--green-dim); }
-    .filhos { display: flex; gap: 14px; position: relative; padding-top: 18px; }
-    .filhos::before { content: ""; position: absolute; top: 0; left: 25%; right: 25%; height: 1px; background: var(--green-dim); }
-    .filhos .caixa { position: relative; }
-    .filhos .caixa::before { content: ""; position: absolute; top: -18px; left: 50%; width: 1px; height: 18px; background: var(--green-dim); }
-    .filhos.um::before { display: none; }
-    .seta { font-family: var(--mono); color: var(--muted); font-size: 0.8rem; text-align: center; margin: 6px 0; }
+/* Conceitos de OOP */
+.oop { display: grid; gap: var(--s-16); }
+.oop-row {
+  display: grid; grid-template-columns: 200px 1fr; gap: var(--s-24); align-items: start;
+  padding: var(--s-24); border-radius: var(--radius); border: 1px solid var(--line); background: var(--bg-raised);
+}
+.oop-row h3 { margin: 0; font-size: var(--t-body); }
+.oop-row p { margin: 0 0 var(--s-8); color: var(--text-2); font-size: var(--t-ui); }
+code, .code, pre { font-family: var(--mono); font-size: 13px; font-variant-ligatures: none; }
+.code {
+  display: block; padding: var(--s-16); border-radius: var(--radius-sm);
+  background: var(--bg-term); border: 1px solid var(--line); overflow-x: auto; white-space: pre; color: var(--text);
+}
+.k { color: var(--violet); } .ty { color: var(--teal); } .cm { color: var(--text-3); } .fn { color: var(--info); }
+@media (max-width: 720px) { .oop-row { grid-template-columns: 1fr; gap: var(--s-8); } }
 
-    /* abas de conceitos */
-    .abas { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px; border-bottom: 1px solid var(--line); }
-    .abas button {
-      font-family: var(--mono); font-size: 0.82rem; cursor: pointer;
-      background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 7px 12px;
-    }
-    .abas button:hover { color: var(--text); }
-    .abas button.ativa { color: var(--bg); background: var(--green); border-color: var(--green); }
-    .conteudo { display: grid; grid-template-columns: 1fr 1.25fr; }
-    .conteudo .texto { padding: 22px; border-right: 1px solid var(--line); }
-    .conteudo .texto h3 { margin: 0 0 8px; }
-    .conteudo .texto p { color: var(--muted); margin: 0 0 12px; }
-    .conteudo .arquivo { font-family: var(--mono); font-size: 0.78rem; color: var(--green); }
-    .conteudo pre {
-      margin: 0; padding: 22px; overflow-x: auto; font-size: 0.8rem; line-height: 1.65; background: #020302;
-      border-radius: 0 0 10px 0;
-    }
-    /* cores do código */
-    .k { color: #ff7ab2; }   /* palavras-chave */
-    .t { color: #6bdfff; }   /* tipos */
-    .s { color: #ffd479; }   /* textos */
-    .c { color: #5f7a66; }   /* comentários */
-    .f { color: var(--green); } /* funções */
+/* UML */
+.uml { padding: var(--s-32); border-radius: var(--radius); border: 1px solid var(--line); background: #f8fafc; overflow-x: auto; }
+.uml .mermaid { min-width: 720px; display: flex; justify-content: center; }
 
-    /* simulador */
-    .sim { display: grid; grid-template-columns: 1fr 1fr; }
-    .sim form { padding: 22px; border-right: 1px solid var(--line); display: grid; gap: 14px; }
-    .campos { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    label { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); display: block; margin-bottom: 4px; }
-    input[type="number"] {
-      width: 100%; font-family: var(--mono); font-size: 1rem; color: var(--text);
-      background: #020302; border: 1px solid var(--line); border-radius: 6px; padding: 9px 10px;
-    }
-    input[type="number"]:focus { outline: none; border-color: var(--green); }
-    input:disabled { opacity: 0.35; }
-    .check { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; }
-    .check input { accent-color: var(--green); width: 18px; height: 18px; }
-    .resultado { padding: 22px; display: flex; flex-direction: column; gap: 14px; }
-    .resultado .classe { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
-    .resultado .status { font-family: var(--mono); font-size: 1.6rem; font-weight: 800; }
-    .resultado .status.aprovado { color: var(--green); }
-    .resultado .status.reprovado { color: var(--red); }
-    .resultado .status.final { color: var(--yellow); }
-    .medidores { display: grid; gap: 10px; }
-    .medidor small { font-family: var(--mono); color: var(--muted); font-size: 0.78rem; display: flex; justify-content: space-between; }
-    .medidor .trilho { height: 8px; background: #020302; border: 1px solid var(--line); border-radius: 4px; position: relative; overflow: hidden; }
-    .medidor .barra { height: 100%; background: var(--green); transition: width 0.25s; }
-    .medidor .marca { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--yellow); }
-    .passos { font-family: var(--mono); font-size: 0.8rem; background: #020302; border: 1px solid var(--line); border-radius: 6px; padding: 12px; margin: 0; list-style: none; }
-    .passos li { padding: 2px 0; color: var(--muted); }
-    .passos li.sim-ok { color: var(--green); }
-    .passos li.sim-no { color: var(--red); }
+/* Regras */
+.rules { display: grid; gap: var(--s-16); grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.rule { padding: var(--s-24); border-radius: var(--radius); border: 1px solid var(--line); }
+.rule b { display: block; margin-bottom: var(--s-8); font-size: var(--t-body); }
+.rule span { color: var(--text-2); font-size: var(--t-ui); }
 
-    /* banco */
-    .camadas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
-    .camada { padding: 14px; text-align: center; position: relative; }
-    .camada b { display: block; font-family: var(--mono); color: var(--green); font-size: 0.9rem; }
-    .camada small { color: var(--muted); font-size: 0.85rem; }
-    .camada:not(:last-child)::after { content: "→"; position: absolute; right: -10px; top: 50%; transform: translate(50%, -50%); color: var(--green-dim); font-family: var(--mono); }
-    .tabelas { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
-    .tabela-db { font-family: var(--mono); font-size: 0.78rem; overflow: hidden; }
-    .tabela-db b { display: block; padding: 8px 12px; background: var(--panel-2); color: var(--green); border-bottom: 1px solid var(--line); }
-    .tabela-db ul { list-style: none; margin: 0; padding: 8px 12px; color: var(--muted); }
-    .tabela-db .pk { color: var(--yellow); }
+/* Vídeo */
+.video {
+  aspect-ratio: 16 / 9; max-width: 100%; border-radius: var(--radius); overflow: hidden;
+  border: 1px solid var(--line); background: var(--bg-raised);
+  display: grid; place-items: center; text-align: center;
+}
+.video iframe { width: 100%; height: 100%; border: 0; }
+.video .soon { color: var(--text-3); font-size: var(--t-ui); }
+.video .soon b { display: block; color: var(--text); font-size: var(--t-sub); margin-bottom: var(--s-8); }
 
-    /* equipe */
-    .equipe { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
-    .membro { padding: 18px; font-family: var(--mono); font-size: 0.85rem; }
-    .membro .cmd { color: var(--muted); }
-    .membro .cmd::before { content: "$ "; color: var(--green); }
-    .membro h3 { font-family: var(--sans); font-size: 1.15rem; margin: 6px 0 2px; }
-    .membro p { margin: 0 0 12px; color: var(--muted); }
-    .membro .classes { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-    .membro .classes span { border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; font-size: 0.75rem; color: var(--text); }
-    .membro a { text-decoration: none; }
+/* Rodar */
+.steps { counter-reset: s; display: grid; gap: var(--s-16); }
+.step { display: grid; grid-template-columns: 40px 1fr; gap: var(--s-16); align-items: start; }
+.step::before {
+  counter-increment: s; content: counter(s);
+  width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+  border: 1px solid var(--line-strong); font: 600 var(--t-ui) var(--mono); color: var(--text-2);
+}
+.step p { margin: var(--s-8) 0; color: var(--text-2); font-size: var(--t-ui); }
 
-    /* rodar */
-    .comando { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-bottom: 10px; font-family: var(--mono); font-size: 0.9rem; }
-    .comando .prompt { color: var(--green); }
-    .comando code { flex: 1; overflow-x: auto; white-space: nowrap; }
-    .comando button {
-      font-family: var(--mono); font-size: 0.75rem; cursor: pointer;
-      background: transparent; border: 1px solid var(--line); color: var(--muted); border-radius: 4px; padding: 4px 10px;
-    }
-    .comando button:hover { color: var(--green); border-color: var(--green); }
-    .nota { color: var(--muted); font-size: 0.95rem; }
+/* Equipe */
+.team { display: grid; gap: var(--s-16); grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.person { padding: var(--s-24); border-radius: var(--radius); border: 1px solid var(--line); background: var(--bg-raised); }
+.avatar { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; color: var(--bg); margin-bottom: var(--s-16); }
+.person b { display: block; }
+.person span { color: var(--text-2); font-size: var(--t-ui); }
 
-    /* status */
-    .progresso { padding: 20px; font-family: var(--mono); font-size: 0.88rem; }
-    .progresso .barra-txt { color: var(--green); margin-bottom: 14px; }
-    .progresso ul { list-style: none; margin: 0; padding: 0; }
-    .progresso li { padding: 3px 0; }
-    .progresso .x { color: var(--green); }
-    .progresso .o { color: var(--muted); }
+footer { padding-block: var(--s-48); border-top: 1px solid var(--line); color: var(--text-3); font-size: var(--t-meta); }
+footer .wrap { display: flex; flex-wrap: wrap; gap: var(--s-16); justify-content: space-between; }
 
-    footer { border-top: 1px solid var(--line); padding: 28px 0; color: var(--muted); font-family: var(--mono); font-size: 0.8rem; }
-    footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-
-    /* celular */
-    @media (max-width: 860px) {
-      .hero, .conteudo, .sim { grid-template-columns: 1fr; }
-      .conteudo .texto, .sim form { border-right: none; border-bottom: 1px solid var(--line); }
-      .conteudo pre { border-radius: 0 0 10px 10px; }
-      .numeros { grid-template-columns: repeat(2, 1fr); }
-      .numeros div:nth-child(2) { border-right: none; }
-      .numeros div:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
-      .camadas { grid-template-columns: repeat(2, 1fr); }
-      .camada::after { display: none; }
-      nav .links { display: none; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-      .cursor { animation: none; }
-    }
-  </style>
+/* Entrada suave ao rolar */
+.reveal { opacity: 0; transform: translateY(16px); transition: opacity .6s ease, transform .6s ease; }
+.reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .cursor { animation: none; }
+  html { scroll-behavior: auto; }
+}
+</style>
 </head>
 <body>
 
-  <!-- Barra de navegação -->
-  <nav>
-    <div class="wrap">
-      <a class="logo" href="#">~/projeto-edoo</a>
-      <div class="links">
-        <a href="#regras">regras</a>
-        <a href="#oop">oop</a>
-        <a href="#simulador">simulador</a>
-        <a href="#banco">banco</a>
-        <a href="#equipe">equipe</a>
-        <a href="#rodar">rodar</a>
-      </div>
+<nav class="nav" aria-label="Navegação principal">
+  <div class="wrap">
+    <a class="brand" href="#"><span class="brand-mark" aria-hidden="true"></span>EDOO Acadêmico</a>
+    <div class="nav-links">
+      <a href="#perfis">Funcionalidades</a>
+      <a href="#oop">Orientação a Objetos</a>
+      <a href="#uml">UML</a>
+      <a href="#video">Vídeo</a>
+      <a href="#rodar">Como rodar</a>
     </div>
-  </nav>
+  </div>
+</nav>
 
-  <main class="wrap">
-
-    <!-- Topo: apresentação + terminal com a saída real do programa -->
-    <header class="hero">
-      <div>
-        <span class="tag">CIN0135 · EDOO · CIn/UFPE</span>
-        <h1>Gestão acadêmica <span>no terminal.</span></h1>
-        <p>Alunos, professores, disciplinas, turmas e matrículas em C++ orientado a objetos, salvos num banco
-          SQLite. A situação de cada aluno é calculada sozinha, a partir das notas e da frequência.</p>
-        <div class="botoes">
-          <a class="botao" href="https://github.com/Fbelt/Projeto-EDOO-">ver código →</a>
-          <a class="botao desativado" href="#">relatório (em breve)</a>
-          <a class="botao desativado" href="#">vídeo (em breve)</a>
-        </div>
-      </div>
-
-      <div class="terminal" aria-label="Saída do programa">
-        <div class="barra">
-          <i style="background: var(--red)"></i><i style="background: var(--yellow)"></i><i style="background: var(--green)"></i>
-          <span>sistema.exe</span>
-        </div>
-        <pre id="saida"></pre>
-      </div>
-    </header>
-
-    <!-- Números do projeto -->
-    <div class="numeros">
-      <div><b>15</b><small>classes em C++</small></div>
-      <div><b>6</b><small>tabelas no SQLite</small></div>
-      <div><b>2</b><small>regras de aprovação</small></div>
-      <div><b>+1000</b><small>linhas de C++</small></div>
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow"><span class="dot" aria-hidden="true"></span>CIN0135 · Estruturas de Dados Orientadas a Objetos · CIn/UFPE</span>
+    <h1>Gestão acadêmica no terminal,<br><span class="grad">feita com orientação a objetos.</span></h1>
+    <p class="lead">Alunos, professores, disciplinas, turmas, notas e frequência em um sistema de console em C++ com banco SQLite. A situação de cada aluno é calculada automaticamente.</p>
+    <div class="actions">
+      <a class="btn btn-primary" href="https://github.com/Fbelt/Projeto-EDOO-">Ver código no GitHub ↗</a>
+      <a class="btn btn-ghost" href="#video">▶ Assistir ao vídeo</a>
     </div>
 
-    <!-- Regras de negócio -->
-    <section id="regras">
-      <div class="secao-topo">
-        <div class="num">// 01</div>
-        <h2>As regras que o código garante</h2>
-        <p>Toda matrícula passa por <code>ClassGroup::enroll()</code>. Não existe outro caminho para colocar um aluno numa turma.</p>
+    <div class="demo reveal">
+      <div class="tabs" role="tablist" aria-label="Escolha um perfil para ver a tela">
+        <button class="tab" role="tab" data-k="admin" aria-selected="true">Administrador</button>
+        <button class="tab" role="tab" data-k="teacher" aria-selected="false">Professor</button>
+        <button class="tab" role="tab" data-k="student" aria-selected="false">Aluno</button>
       </div>
-      <div class="regras">
-        <div class="painel regra">
-          <code>enrollments.size() &gt;= capacity</code>
-          <h3>Limite de vagas</h3>
-          <p>Turma cheia recusa a matrícula e mostra "Turma sem vagas".</p>
-        </div>
-        <div class="painel regra">
-          <code>findEnrollment(s) != nullptr</code>
-          <h3>Sem matrícula repetida</h3>
-          <p>O mesmo aluno não entra duas vezes na mesma turma.</p>
-        </div>
-        <div class="painel regra">
-          <code>if (finished) return false;</code>
-          <h3>Turma encerrada</h3>
-          <p>Depois de <code>finish()</code>, ninguém entra. Antes disso, todos estão "Cursando".</p>
-        </div>
-        <div class="painel regra">
-          <code>g &lt; 0 || g &gt; 10</code>
-          <h3>Nota válida</h3>
-          <p>Nota fora de 0 a 10 é recusada, porque as notas são <code>private</code> e só mudam por <code>addGrade()</code>.</p>
-        </div>
+      <div class="term" role="tabpanel">
+        <div class="term-bar" aria-hidden="true"><i></i><i></i><i></i><span>./sistema</span></div>
+<pre id="screen" aria-live="polite"></pre>
       </div>
-    </section>
+    </div>
+  </div>
+</header>
 
-    <!-- Conceitos de OOP com o código de verdade -->
-    <section id="oop">
-      <div class="secao-topo">
-        <div class="num">// 02</div>
-        <h2>Orientação a objetos, direto do código</h2>
-        <p>Cada conceito exigido pela disciplina, com o trecho real onde ele aparece.</p>
-      </div>
-
-      <div class="painel diagrama">
-        <div class="arvore">
-          <div class="caixa abstrata"><b>Person</b><small>abstrata · exibirInfo() = 0</small></div>
-          <div class="filhos">
-            <div class="caixa">Student<small>matrícula, curso</small></div>
-            <div class="caixa">Teacher<small>matrícula funcional</small></div>
-          </div>
-        </div>
-        <div class="arvore">
-          <div class="caixa">ClassGroup<small>vector&lt;Enrollment*&gt;</small></div>
-          <div class="seta">guarda ↓</div>
-          <div class="caixa">Enrollment<small>virtual calculateStatus()</small></div>
-          <div class="filhos um">
-            <div class="caixa">FinalExamEnrollment<small>override calculateStatus()</small></div>
-          </div>
-        </div>
-        <div class="arvore">
-          <div class="caixa">Database<small>Singleton</small></div>
-          <div class="seta">usado por ↓</div>
-          <div class="caixa">5 Repositórios<small>objeto ⇄ SQL</small></div>
-        </div>
-      </div>
-
-      <div class="painel">
-        <div class="abas" role="tablist" id="abas"></div>
-        <div class="conteudo">
-          <div class="texto">
-            <h3 id="conceito-titulo"></h3>
-            <p id="conceito-texto"></p>
-            <div class="arquivo" id="conceito-arquivo"></div>
-          </div>
-          <pre id="conceito-codigo"></pre>
-        </div>
-      </div>
-    </section>
-
-    <!-- Simulador da regra de aprovação (mesma lógica do C++) -->
-    <section id="simulador">
-      <div class="secao-topo">
-        <div class="num">// 03</div>
-        <h2>Simulador de situação</h2>
-        <p>Mesma lógica de <code>Enrollment::calculateStatus()</code> e <code>FinalExamEnrollment::calculateStatus()</code>, reescrita em JavaScript. Mude os valores e veja qual regra decide.</p>
-      </div>
-
-      <div class="painel sim">
-        <form id="form-sim" onsubmit="return false">
-          <div class="campos">
-            <div><label for="n1">nota 1</label><input id="n1" type="number" min="0" max="10" step="0.5" value="6"></div>
-            <div><label for="n2">nota 2</label><input id="n2" type="number" min="0" max="10" step="0.5" value="5"></div>
-            <div><label for="aulas">aulas</label><input id="aulas" type="number" min="0" step="1" value="20"></div>
-            <div><label for="pres">presenças</label><input id="pres" type="number" min="0" step="1" value="17"></div>
-          </div>
-          <label class="check"><input id="temFinal" type="checkbox" checked> disciplina com prova final</label>
-          <div><label for="nf">nota da final (vazio = não fez)</label><input id="nf" type="number" min="0" max="10" step="0.5" placeholder="-"></div>
-        </form>
-
-        <div class="resultado">
-          <div class="classe" id="sim-classe"></div>
-          <div class="status" id="sim-status"></div>
-          <div class="medidores">
-            <div class="medidor">
-              <small><span>média</span><span id="sim-media"></span></small>
-              <div class="trilho"><div class="barra" id="bar-media"></div><div class="marca" style="left: 70%"></div></div>
-            </div>
-            <div class="medidor">
-              <small><span>frequência</span><span id="sim-freq"></span></small>
-              <div class="trilho"><div class="barra" id="bar-freq"></div><div class="marca" style="left: 75%"></div></div>
-            </div>
-          </div>
-          <ul class="passos" id="sim-passos"></ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- Banco de dados -->
-    <section id="banco">
-      <div class="secao-topo">
-        <div class="num">// 04</div>
-        <h2>Persistência com SQLite</h2>
-        <p>As classes de domínio não têm uma linha de SQL. Quem conversa com o banco são os repositórios, e a conexão é uma só (<code>Database::getInstance()</code>).</p>
-      </div>
-
-      <div class="camadas">
-        <div class="painel camada"><b>main.cpp</b><small>começa tudo</small></div>
-        <div class="painel camada"><b>Domínio</b><small>regras: turma, matrícula…</small></div>
-        <div class="painel camada"><b>Repositórios</b><small>objeto ⇄ linha</small></div>
-        <div class="painel camada"><b>escola.db</b><small>arquivo SQLite</small></div>
-      </div>
-
-      <div class="tabelas">
-        <div class="painel tabela-db"><b>pessoas</b><ul><li class="pk">matricula</li><li>tipo</li><li>nome · cpf</li><li>nascimento</li><li>contato · curso</li></ul></div>
-        <div class="painel tabela-db"><b>disciplinas</b><ul><li class="pk">codigo</li><li>nome</li><li>carga_horaria</li><li>ementa</li><li>tem_final · professor</li></ul></div>
-        <div class="painel tabela-db"><b>turmas</b><ul><li class="pk">codigo</li><li>disciplina · professor</li><li>semestre · horario</li><li>vagas</li><li>encerrada</li></ul></div>
-        <div class="painel tabela-db"><b>matriculas</b><ul><li>aluno</li><li>turma</li><li>nota_final</li></ul></div>
-        <div class="painel tabela-db"><b>notas</b><ul><li>aluno</li><li>turma</li><li>valor</li></ul></div>
-        <div class="painel tabela-db"><b>frequencia</b><ul><li>aluno</li><li>turma</li><li>aulas · presencas</li></ul></div>
-      </div>
-    </section>
-
-    <!-- Equipe -->
-    <section id="equipe">
-      <div class="secao-topo">
-        <div class="num">// 05</div>
-        <h2>Quem fez o quê</h2>
-      </div>
-      <div class="equipe">
-        <div class="painel membro">
-          <div class="cmd">whoami --integrante 1</div>
-          <h3>Pedro Henrique</h3>
-          <p>pessoas e factory</p>
-          <div class="classes"><span>Person</span><span>Student</span><span>Teacher</span><span>PersonFactory</span></div>
-          <a href="integrante1.html">ler documentação →</a>
-        </div>
-        <div class="painel membro">
-          <div class="cmd">whoami --integrante 2</div>
-          <h3>Felipe Belfort</h3>
-          <p>turmas, matrículas, GitHub Pages e documentação</p>
-          <div class="classes"><span>Discipline</span><span>ClassGroup</span><span>Enrollment</span><span>FinalExamEnrollment</span><span>GitHub Pages</span><span>documentação</span></div>
-          <a href="integrante2.html">ler documentação →</a>
-        </div>
-        <div class="painel membro">
-          <div class="cmd">whoami --integrante 3</div>
-          <h3>Gabriel Geller</h3>
-          <p>estrutura e banco de dados</p>
-          <div class="classes"><span>Database</span><span>Repositories</span><span>Seed</span></div>
-          <a href="integrante3.html">ler documentação →</a>
-        </div>
-        <div class="painel membro">
-          <div class="cmd">whoami --integrante 4</div>
-          <h3>Luis Henrique</h3>
-          <p>menu, relatório e vídeo</p>
-          <div class="classes"><span>menu do terminal</span></div>
-          <span class="mono" style="color: var(--muted)">documentação em breve</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- Como rodar -->
-    <section id="rodar">
-      <div class="secao-topo">
-        <div class="num">// 06</div>
-        <h2>Rodando na sua máquina</h2>
-        <p>Só precisa do g++ (MinGW no Windows). O SQLite já vem junto, na pasta <code>sqlite/</code>.</p>
-      </div>
-      <div class="painel comando"><span class="prompt">$</span><code>git clone https://github.com/Fbelt/Projeto-EDOO-.git</code><button type="button">copiar</button></div>
-      <div class="painel comando"><span class="prompt">$</span><code>mingw32-make</code><button type="button">copiar</button></div>
-      <div class="painel comando"><span class="prompt">$</span><code>./sistema</code><button type="button">copiar</button></div>
-      <p class="nota">No Linux/Mac, use <code>make</code>. Na primeira execução o banco <code>data/escola.db</code> é criado com dados de exemplo. Para recomeçar do zero, apague esse arquivo.</p>
-    </section>
-
-    <!-- Andamento -->
-    <section id="status">
-      <div class="secao-topo">
-        <div class="num">// 07</div>
-        <h2>Andamento</h2>
-      </div>
-      <div class="painel progresso">
-        <div class="barra-txt">[████████████░░░░░░░░] 4 de 6</div>
+<main>
+<section id="perfis">
+  <div class="wrap">
+    <span class="kicker">Funcionalidades</span>
+    <h2>Três perfis, cada um com o que precisa</h2>
+    <p class="section-lead">Cada perfil tem uma cor própria no terminal, e o caminho “Início › Perfil › Tela” fica sempre no topo para o usuário saber onde está.</p>
+    <div class="grid">
+      <article class="card reveal">
+        <div class="icon" style="background:var(--indigo)">A</div>
+        <h3>Administrador</h3>
+        <p>A secretaria da escola.</p>
         <ul>
-          <li><span class="x">[x]</span> Pessoa, Aluno, Professor e Factory</li>
-          <li><span class="x">[x]</span> Disciplina, Turma e Matrícula, com as regras de aprovação</li>
-          <li><span class="x">[x]</span> Banco de dados SQLite, repositórios e dados de exemplo</li>
-          <li><span class="x">[x]</span> GitHub Pages</li>
-          <li><span class="o">[ ]</span> Menu no terminal (Administrador, Professor e Aluno)</li>
-          <li><span class="o">[ ]</span> Relatório e vídeo</li>
+          <li>CRUD de alunos, professores e disciplinas</li>
+          <li>Criar, encerrar e remover turmas</li>
+          <li>Matricular e desmatricular, respeitando o limite de vagas</li>
+          <li>Busca em todo o sistema</li>
+          <li>Relatório de turma e histórico escolar</li>
         </ul>
-      </div>
-    </section>
-
-  </main>
-
-  <footer>
-    <div class="wrap">
-      <span>CIN0135 · Estruturas de Dados Orientadas a Objetos · CIn/UFPE · 2026</span>
-      <span>feito em C++ + SQLite</span>
+      </article>
+      <article class="card reveal">
+        <div class="icon" style="background:var(--teal)">P</div>
+        <h3>Professor</h3>
+        <p>O diário de classe.</p>
+        <ul>
+          <li>Ver turmas, alunos, médias e situação</li>
+          <li>Lançar notas para a turma toda de uma vez</li>
+          <li>Corrigir notas já lançadas</li>
+          <li>Fazer a chamada (frequência)</li>
+          <li>Lançar prova final e encerrar a turma</li>
+        </ul>
+      </article>
+      <article class="card reveal">
+        <div class="icon" style="background:var(--orchid)">E</div>
+        <h3>Aluno</h3>
+        <p>Consulta da vida acadêmica.</p>
+        <ul>
+          <li>Disciplinas do semestre, professor e horário</li>
+          <li>Notas, médias e quanto falta para aprovar</li>
+          <li>Frequência com barra de progresso</li>
+          <li>Situação atual e previsão</li>
+          <li>Grade semanal e histórico escolar</li>
+        </ul>
+      </article>
     </div>
-  </footer>
+  </div>
+</section>
 
-  <script>
-    // ---------- Terminal do topo: "digita" a saída real do programa ----------
-    var linhas = [
-      ['<span class="prompt">$</span> ./sistema', 500],
-      ['Banco vazio: criando dados de exemplo...', 350],
-      ['4 alunos, 2 professores, 2 disciplinas, 2 turmas', 450],
-      ['', 80],
-      ['Turma IP-2026.1 - Introducao a Programacao', 220],
-      ['Joao Silva | media 8.5 | freq 100% | <span class="ok">Aprovado</span>', 160],
-      ['Maria Oliveira | media 8.5 | freq 60% | <span class="bad">Reprovado por falta</span>', 160],
-      ['Pedro Santos | media 4.5 | freq 90% | <span class="bad">Reprovado por nota</span>', 160],
-      ['Media da turma: 7.16667', 120],
-      ['Aprovados: 1 de 3', 350],
-      ['', 80],
-      ['Turma EDOO-2026.2 - Estruturas de Dados Orientadas a Objetos', 220],
-      ['Joao Silva | media 6.75 | freq 83.3333% | <span class="cur">Cursando</span>', 160],
-      ['Maria Oliveira | media 4.5 | freq 100% | <span class="cur">Cursando</span>', 160],
-      ['Julia Costa | media 9.5 | freq 100% | <span class="cur">Cursando</span>', 160],
-      ['Media da turma: 6.91667', 120],
-      ['Aprovados: 0 de 3', 300],
-      ['', 0],
-      ['<span class="prompt">$</span> ', 0]
-    ];
-    var saida = document.getElementById('saida');
-    var semAnimacao = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var cursor = '<span class="cursor"></span>';
+<section id="oop">
+  <div class="wrap">
+    <span class="kicker">Orientação a Objetos</span>
+    <h2>Onde cada conceito aparece no código</h2>
+    <p class="section-lead">Os requisitos de OOP da disciplina e o trecho do projeto que mostra cada um.</p>
+    <div class="oop">
+      <div class="oop-row reveal">
+        <h3>Herança e classe abstrata</h3>
+        <div>
+          <p><code>Person</code> tem o método puro <code>exibirInfo() = 0</code>, então não dá para criar uma <code>Person</code> direto. <code>Student</code> e <code>Teacher</code> herdam dela.</p>
+<code class="code"><span class="k">class</span> <span class="ty">Student</span> : <span class="k">public</span> <span class="ty">Person</span> { ... };
+<span class="k">virtual void</span> <span class="fn">exibirInfo</span>() <span class="k">const</span> = 0;  <span class="cm">// em Person</span></code>
+        </div>
+      </div>
+      <div class="oop-row reveal">
+        <h3>Polimorfismo</h3>
+        <div>
+          <p><code>calculateStatus()</code> é virtual: <code>FinalExamEnrollment</code> troca a regra de aprovação. No menu, o mesmo ponteiro <code>Person*</code> mostra a ficha certa de aluno ou de professor.</p>
+<code class="code"><span class="ty">Person</span>* p = aluno;
+p-><span class="fn">exibirInfo</span>();          <span class="cm">// roda Student::exibirInfo()</span>
+e-><span class="fn">calculateStatus</span>();     <span class="cm">// regra normal ou com prova final</span></code>
+        </div>
+      </div>
+      <div class="oop-row reveal">
+        <h3>Encapsulamento</h3>
+        <div><p>CPF, notas e frequência são <code>private</code>. Só dá para mexer neles por getters e setters, que validam o valor. Por exemplo, <code>addGrade()</code> recusa nota fora de 0 a 10.</p></div>
+      </div>
+      <div class="oop-row reveal">
+        <h3>Ponteiros e referências</h3>
+        <div>
+          <p>A turma guarda as matrículas como ponteiros. Os métodos recebem objetos por referência, sem copiar.</p>
+<code class="code"><span class="ty">vector</span>&lt;<span class="ty">Enrollment</span>*&gt; enrollments;
+<span class="k">bool</span> <span class="fn">enroll</span>(<span class="ty">Student</span>&amp; s);</code>
+        </div>
+      </div>
+      <div class="oop-row reveal">
+        <h3>Singleton e Factory (bônus)</h3>
+        <div>
+          <p><code>Database</code> tem construtor privado e uma única instância. <code>PersonFactory</code> cria um aluno ou um professor a partir de um texto.</p>
+<code class="code"><span class="ty">Database</span>&amp; db = <span class="ty">Database</span>::<span class="fn">getInstance</span>();
+<span class="ty">Person</span>* p = <span class="ty">PersonFactory</span>::<span class="fn">criar</span>(<span class="ty">"aluno"</span>, ...);</code>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-    if (semAnimacao) {
-      saida.innerHTML = linhas.map(function (l) { return l[0]; }).join('\n') + cursor;
-    } else {
-      var i = 0, texto = '';
-      (function proxima() {
-        if (i >= linhas.length) return;
-        texto += (i > 0 ? '\n' : '') + linhas[i][0];
-        saida.innerHTML = texto + cursor;
-        setTimeout(proxima, linhas[i][1]);
-        i++;
-      })();
-    }
+<section id="uml">
+  <div class="wrap">
+    <span class="kicker">Modelagem</span>
+    <h2>Diagrama de classes (UML)</h2>
+    <p class="section-lead">As classes de domínio não têm SQL dentro delas. Quem conversa com o banco são os repositórios.</p>
+    <div class="uml reveal">
+<pre class="mermaid">
+classDiagram
+  direction LR
+  class Person {
+    &lt;&lt;abstract&gt;&gt;
+    -string name
+    -string cpf
+    -string birthday
+    -string contato
+    +exibirInfo()* void
+  }
+  class Student {
+    -string matricula
+    -string curso
+    +exibirInfo() void
+  }
+  class Teacher {
+    -string matriculaFuncional
+    -vector~string~ disciplinas
+    +exibirInfo() void
+  }
+  class Discipline {
+    -string code
+    -string name
+    -int workload
+    -bool hasFinalExam
+    -Teacher* teacher
+  }
+  class ClassGroup {
+    -string code
+    -string semester
+    -string schedule
+    -int capacity
+    -bool finished
+    -vector~Enrollment*~ enrollments
+    +enroll(Student&) bool
+    +unenroll(Student&) bool
+    +getStatus(Enrollment*) string
+    +finish() void
+  }
+  class Enrollment {
+    -Student* student
+    -vector~double~ grades
+    -int classes
+    -int presences
+    -double finalGrade
+    +calculateAverage() double
+    +calculateAttendance() double
+    +calculateStatus() string
+  }
+  class FinalExamEnrollment {
+    +calculateStatus() string
+  }
+  class Database {
+    &lt;&lt;singleton&gt;&gt;
+    -Database()
+    +getInstance()$ Database&
+    +execute(string) void
+    +query(string) vector
+  }
+  class PersonFactory {
+    +criar(tipo, ...)$ Person*
+  }
+  Person <|-- Student
+  Person <|-- Teacher
+  Enrollment <|-- FinalExamEnrollment
+  Discipline --> Teacher : responsável
+  ClassGroup --> Discipline
+  ClassGroup --> Teacher
+  ClassGroup *-- Enrollment : matrículas
+  Enrollment --> Student
+  PersonFactory ..> Person : cria
+</pre>
+    </div>
+  </div>
+</section>
 
-    // ---------- Abas dos conceitos de OOP ----------
-    // Cada conceito: título, explicação, arquivo e trecho do código real
-    var conceitos = [
-      {
-        aba: 'herança',
-        titulo: 'Herança',
-        texto: 'Student e Teacher herdam nome, CPF, nascimento e contato de Person. O construtor da filha chama o da mãe na lista de inicialização.',
-        arquivo: 'include/Student.h · src/Student.cpp',
-        codigo:
-          '<span class="k">class</span> <span class="t">Student</span> : <span class="k">public</span> <span class="t">Person</span> {\n' +
-          '<span class="k">private</span>:\n' +
-          '    <span class="t">string</span> matricula;\n' +
-          '    <span class="t">string</span> curso;\n' +
-          '    ...\n' +
-          '};\n\n' +
-          '<span class="t">Student</span>::<span class="f">Student</span>(...)\n' +
-          '    : <span class="f">Person</span>(n, b, c) {   <span class="c">// monta a "parte Pessoa"</span>\n' +
-          '    matricula = mat;\n' +
-          '    curso = cur;\n' +
-          '}'
-      },
-      {
-        aba: 'abstrata',
-        titulo: 'Classe abstrata',
-        texto: 'Person tem um método virtual puro (= 0). Por isso ninguém consegue criar uma Person direto: todo mundo no sistema é aluno ou professor.',
-        arquivo: 'include/Person.h',
-        codigo:
-          '<span class="k">class</span> <span class="t">Person</span> {\n' +
-          '<span class="k">private</span>:\n' +
-          '    <span class="t">string</span> name;\n' +
-          '    <span class="t">string</span> cpf;\n' +
-          '    ...\n' +
-          '<span class="k">public</span>:\n' +
-          '    <span class="k">virtual</span> ~<span class="f">Person</span>() {}\n' +
-          '    <span class="k">virtual void</span> <span class="f">exibirInfo</span>() <span class="k">const</span> = 0;\n' +
-          '};\n\n' +
-          '<span class="t">Person</span> p;    <span class="c">// erro de compilação</span>\n' +
-          '<span class="t">Student</span> s;   <span class="c">// ok</span>'
-      },
-      {
-        aba: 'encapsulamento',
-        titulo: 'Encapsulamento',
-        texto: 'As notas são private. O único jeito de colocar uma nota é addGrade(), que recusa valores fora de 0 a 10. Não tem como "furar" a validação.',
-        arquivo: 'src/Enrollment.cpp',
-        codigo:
-          '<span class="k">private</span>:\n' +
-          '    <span class="t">vector</span>&lt;<span class="t">double</span>&gt; grades;\n' +
-          '    <span class="t">int</span> classes;\n' +
-          '    <span class="t">int</span> presences;\n\n' +
-          '<span class="k">void</span> <span class="t">Enrollment</span>::<span class="f">addGrade</span>(<span class="t">double</span> g) {\n' +
-          '    <span class="k">if</span> (g &lt; 0 || g &gt; 10) {\n' +
-          '        cout &lt;&lt; <span class="s">"Nota invalida"</span> &lt;&lt; endl;\n' +
-          '        <span class="k">return</span>;\n' +
-          '    }\n' +
-          '    grades.<span class="f">push_back</span>(g);\n' +
-          '}'
-      },
-      {
-        aba: 'polimorfismo',
-        titulo: 'Polimorfismo',
-        texto: 'A turma guarda todas as matrículas como Enrollment*, sem saber o tipo. Na hora de calcular a situação, o C++ escolhe sozinho a regra normal ou a da prova final.',
-        arquivo: 'src/ClassGroup.cpp · include/FinalExamEnrollment.h',
-        codigo:
-          '<span class="c">// Enrollment.h</span>\n' +
-          '<span class="k">virtual</span> <span class="t">string</span> <span class="f">calculateStatus</span>();\n\n' +
-          '<span class="c">// FinalExamEnrollment.h</span>\n' +
-          '<span class="t">string</span> <span class="f">calculateStatus</span>() <span class="k">override</span>;\n\n' +
-          '<span class="c">// ClassGroup.cpp</span>\n' +
-          '<span class="t">string</span> <span class="t">ClassGroup</span>::<span class="f">getStatus</span>(<span class="t">Enrollment</span>* e) {\n' +
-          '    <span class="k">if</span> (!finished) {\n' +
-          '        <span class="k">return</span> <span class="s">"Cursando"</span>;\n' +
-          '    }\n' +
-          '    <span class="k">return</span> e-&gt;<span class="f">calculateStatus</span>();  <span class="c">// usa a regra certa</span>\n' +
-          '}'
-      },
-      {
-        aba: 'ponteiros',
-        titulo: 'Ponteiros e referências',
-        texto: 'enroll recebe o aluno por referência (sem cópia) e guarda o endereço dele. A turma tem um vector de ponteiros, o que permite guardar os dois tipos de matrícula juntos.',
-        arquivo: 'src/ClassGroup.cpp',
-        codigo:
-          '<span class="t">vector</span>&lt;<span class="t">Enrollment</span>*&gt; enrollments;\n\n' +
-          '<span class="t">bool</span> <span class="t">ClassGroup</span>::<span class="f">enroll</span>(<span class="t">Student</span>&amp; s) {\n' +
-          '    ...\n' +
-          '    <span class="k">if</span> (discipline-&gt;<span class="f">getHasFinalExam</span>()) {\n' +
-          '        enrollments.<span class="f">push_back</span>(<span class="k">new</span> <span class="t">FinalExamEnrollment</span>(s));\n' +
-          '    } <span class="k">else</span> {\n' +
-          '        enrollments.<span class="f">push_back</span>(<span class="k">new</span> <span class="t">Enrollment</span>(s));\n' +
-          '    }\n' +
-          '    <span class="k">return true</span>;\n' +
-          '}\n\n' +
-          '<span class="c">// destrutor: a turma é dona das matrículas</span>\n' +
-          '<span class="t">ClassGroup</span>::~<span class="f">ClassGroup</span>() {\n' +
-          '    <span class="k">for</span> (<span class="t">Enrollment</span>* e : enrollments) <span class="k">delete</span> e;\n' +
-          '}'
-      },
-      {
-        aba: 'singleton',
-        titulo: 'Singleton (bônus)',
-        texto: 'O construtor de Database é privado, então ninguém cria outro. Todo o programa usa a mesma conexão através de getInstance().',
-        arquivo: 'src/Database.cpp',
-        codigo:
-          '<span class="k">class</span> <span class="t">Database</span> {\n' +
-          '<span class="k">private</span>:\n' +
-          '    <span class="t">sqlite3</span>* db;\n' +
-          '    <span class="f">Database</span>();   <span class="c">// ninguém de fora cria</span>\n' +
-          '<span class="k">public</span>:\n' +
-          '    <span class="k">static</span> <span class="t">Database</span>&amp; <span class="f">getInstance</span>();\n' +
-          '};\n\n' +
-          '<span class="t">Database</span>&amp; <span class="t">Database</span>::<span class="f">getInstance</span>() {\n' +
-          '    <span class="k">static</span> <span class="t">Database</span> instance;  <span class="c">// criado uma vez só</span>\n' +
-          '    <span class="k">return</span> instance;\n' +
-          '}'
-      },
-      {
-        aba: 'factory',
-        titulo: 'Factory Method (bônus)',
-        texto: 'Cria um Student ou um Teacher a partir de um texto e devolve um Person*. Quem chama não precisa saber o construtor de cada classe.',
-        arquivo: 'src/PersonFactory.cpp',
-        codigo:
-          '<span class="t">Person</span>* <span class="t">PersonFactory</span>::<span class="f">criar</span>(<span class="k">const</span> <span class="t">string</span>&amp; tipo, ...) {\n' +
-          '    <span class="k">if</span> (tipo == <span class="s">"aluno"</span>) {\n' +
-          '        <span class="k">return new</span> <span class="t">Student</span>(nome, nascimento, cpf, extra1, extra2);\n' +
-          '    }\n' +
-          '    <span class="k">if</span> (tipo == <span class="s">"professor"</span>) {\n' +
-          '        <span class="k">return new</span> <span class="t">Teacher</span>(nome, nascimento, cpf, extra1);\n' +
-          '    }\n' +
-          '    <span class="k">return</span> <span class="k">nullptr</span>;\n' +
-          '}\n\n' +
-          '<span class="t">Person</span>* p = <span class="t">PersonFactory</span>::<span class="f">criar</span>(<span class="s">"aluno"</span>, ...);\n' +
-          'p-&gt;<span class="f">exibirInfo</span>();   <span class="c">// roda a versão de Student</span>'
-      }
-    ];
+<section id="regras">
+  <div class="wrap">
+    <span class="kicker">Regras de negócio</span>
+    <h2>Como a situação é calculada</h2>
+    <p class="section-lead">Enquanto a turma está aberta, o aluno aparece como “Cursando”. Quando o professor encerra, vale a regra da disciplina.</p>
+    <div class="rules">
+      <div class="rule reveal"><b class="c-good">✔ Sem prova final</b><span>Frequência abaixo de 75% reprova por falta. Média 7 ou mais aprova.</span></div>
+      <div class="rule reveal"><b class="c-warn">⚑ Com prova final</b><span>Média 7 ou mais aprova, abaixo de 3 reprova. Entre 3 e 7, passa se (média + final) / 2 for 5 ou mais.</span></div>
+      <div class="rule reveal"><b class="c-info">◷ Vagas</b><span>A turma tem limite de vagas, o mesmo aluno não entra duas vezes, e turma encerrada não aceita matrícula.</span></div>
+    </div>
+  </div>
+</section>
 
-    var abas = document.getElementById('abas');
-    function mostrarConceito(indice) {
-      var c = conceitos[indice];
-      document.getElementById('conceito-titulo').textContent = c.titulo;
-      document.getElementById('conceito-texto').textContent = c.texto;
-      document.getElementById('conceito-arquivo').textContent = c.arquivo;
-      document.getElementById('conceito-codigo').innerHTML = c.codigo;
-      var botoes = abas.querySelectorAll('button');
-      for (var j = 0; j < botoes.length; j++) {
-        botoes[j].classList.toggle('ativa', j === indice);
-        botoes[j].setAttribute('aria-selected', j === indice);
-      }
-    }
-    conceitos.forEach(function (c, indice) {
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.setAttribute('role', 'tab');
-      b.textContent = c.aba;
-      b.addEventListener('click', function () { mostrarConceito(indice); });
-      abas.appendChild(b);
-    });
-    mostrarConceito(3);  // começa no polimorfismo, o ponto principal do projeto
+<section id="video">
+  <div class="wrap">
+    <span class="kicker">Apresentação</span>
+    <h2>Vídeo no YouTube</h2>
+    <p class="section-lead">As funcionalidades e os conceitos de orientação a objetos explicados pelo grupo.</p>
+    <!-- Para publicar: troque VIDEO_ID abaixo pelo código do vídeo (o que vem depois de "watch?v=") -->
+    <div class="video reveal" id="video-box" data-video-id="VIDEO_ID">
+      <div class="soon"><b>Em breve</b>O vídeo será publicado aqui.</div>
+    </div>
+  </div>
+</section>
 
-    // ---------- Simulador: mesma regra do calculateStatus() em C++ ----------
-    function numero(id) {
-      var v = document.getElementById(id).value;
-      return v === '' ? null : Number(v);
-    }
+<section id="rodar">
+  <div class="wrap">
+    <span class="kicker">Como rodar</span>
+    <h2>Compilar e executar</h2>
+    <p class="section-lead">Você precisa do g++ (MinGW no Windows). Não tem dependência externa: o SQLite vem junto no projeto.</p>
+    <div class="steps">
+      <div class="step"><div><b>Clonar o repositório</b><code class="code">git clone https://github.com/Fbelt/Projeto-EDOO-.git
+cd Projeto-EDOO-</code></div></div>
+      <div class="step"><div><b>Compilar</b><p>A primeira vez demora uns 15 segundos, porque compila o SQLite junto.</p><code class="code">make            <span class="cm"># Linux / Mac</span>
+mingw32-make    <span class="cm"># Windows</span></code></div></div>
+      <div class="step"><div><b>Rodar</b><p>Na primeira execução, o banco <code>data/escola.db</code> é criado com dados de exemplo.</p><code class="code">./sistema</code></div></div>
+    </div>
+  </div>
+</section>
 
-    function simular() {
-      var notas = [numero('n1'), numero('n2')].filter(function (n) { return n !== null && n >= 0 && n <= 10; });
-      var aulas = Math.max(0, numero('aulas') || 0);
-      var pres = Math.min(aulas, Math.max(0, numero('pres') || 0));
-      var temFinal = document.getElementById('temFinal').checked;
-      var nf = numero('nf');
-      if (nf !== null && (nf < 0 || nf > 10)) nf = null;  // nota inválida é recusada, como no setFinalGrade
-      document.getElementById('nf').disabled = !temFinal;
+<section id="equipe">
+  <div class="wrap">
+    <span class="kicker">Equipe</span>
+    <h2>Quem fez</h2>
+    <p class="section-lead">Grupo de quatro pessoas, uma parte para cada um.</p>
+    <div class="team">
+      <div class="person reveal"><div class="avatar" style="background:var(--violet)">PH</div><b>Pedro Henrique</b><span>Pessoa, Aluno, Professor e Factory</span></div>
+      <div class="person reveal"><div class="avatar" style="background:var(--indigo)">FB</div><b>Felipe Belfort</b><span>Disciplina, Turma e Matrícula</span></div>
+      <div class="person reveal"><div class="avatar" style="background:var(--teal)">GG</div><b>Gabriel Geller</b><span>Estrutura do projeto e banco SQLite</span></div>
+      <div class="person reveal"><div class="avatar" style="background:var(--orchid)">LH</div><b>Luis Henrique</b><span>Interface de console, relatório e vídeo</span></div>
+    </div>
+  </div>
+</section>
+</main>
 
-      // calculateAverage() e calculateAttendance()
-      var media = notas.length ? notas.reduce(function (a, b) { return a + b; }, 0) / notas.length : 0;
-      var freq = aulas === 0 ? 100 : pres * 100 / aulas;
+<footer>
+  <div class="wrap">
+    <span>EDOO Acadêmico · CIN0135 · CIn/UFPE · 2026.2</span>
+    <a href="https://github.com/Fbelt/Projeto-EDOO-">github.com/Fbelt/Projeto-EDOO-</a>
+  </div>
+</footer>
 
-      var passos = [];
-      var status;
-      if (freq < 75) {
-        passos.push(['no', 'calculateAttendance() < 75  → sim']);
-        status = 'Reprovado por falta';
-      } else {
-        passos.push(['ok', 'calculateAttendance() < 75  → não']);
-        if (media >= 7) {
-          passos.push(['ok', 'calculateAverage() >= 7     → sim']);
-          status = 'Aprovado';
-        } else if (!temFinal) {
-          passos.push(['no', 'calculateAverage() >= 7     → não']);
-          status = 'Reprovado por nota';
-        } else {
-          passos.push(['no', 'calculateAverage() >= 7     → não']);
-          if (media < 3) {
-            passos.push(['no', 'calculateAverage() < 3      → sim']);
-            status = 'Reprovado por nota';
-          } else if (nf === null) {
-            passos.push(['ok', 'calculateAverage() < 3      → não']);
-            passos.push(['', 'getFinalGrade() == -1       → sim']);
-            status = 'Em prova final';
-          } else {
-            var mf = (media + nf) / 2;
-            passos.push(['ok', 'calculateAverage() < 3      → não']);
-            passos.push([mf >= 5 ? 'ok' : 'no', '(média + final) / 2 = ' + mf.toFixed(2) + (mf >= 5 ? ' ≥ 5' : ' < 5')]);
-            status = mf >= 5 ? 'Aprovado' : 'Reprovado por nota';
-          }
-        }
-      }
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";
+  mermaid.initialize({ startOnLoad: true, theme: "neutral", fontFamily: "Inter, sans-serif" });
+</script>
+<script>
+// ── Telas do terminal (baseadas na saída real do programa) ──
+const B = s => `<span class="c-brd">${s}</span>`;
+const M = s => `<span class="c-mut">${s}</span>`;
+const head = (pill, cls, path, last) =>
+  `  <span class="${cls}">◆ EDOO</span>${M(" Acadêmico")}${" ".repeat(46 - pill.length)}<span class="pill ${cls === 'c-ind' ? 'ind' : cls === 'c-tea' ? 'tea' : 'orc'}"> ${pill} </span>
+  ${M("Início › " + path)}<span class="c-b">${last}</span>
+  ${B("─".repeat(66))}
 
-      document.getElementById('sim-classe').textContent =
-        (temFinal ? 'FinalExamEnrollment' : 'Enrollment') + '::calculateStatus()';
-      var el = document.getElementById('sim-status');
-      el.textContent = '"' + status + '"';
-      el.className = 'status ' + (status === 'Aprovado' ? 'aprovado' : status === 'Em prova final' ? 'final' : 'reprovado');
+`;
 
-      document.getElementById('sim-media').textContent = media.toFixed(2) + ' (mín. 7)';
-      document.getElementById('sim-freq').textContent = freq.toFixed(1) + '% (mín. 75%)';
-      document.getElementById('bar-media').style.width = (media * 10) + '%';
-      document.getElementById('bar-freq').style.width = freq + '%';
+const screens = {
+  admin:
+head("ADMINISTRADOR", "c-ind", "", "Administrador") +
+`  <span class="c-ind">▍</span><span class="c-b">Painel da Secretaria</span>
+    ${M("Visão geral do sistema")}
 
-      var lista = document.getElementById('sim-passos');
-      lista.innerHTML = '';
-      passos.forEach(function (p) {
-        var li = document.createElement('li');
-        li.textContent = p[1];
-        if (p[0]) li.className = 'sim-' + p[0];
-        lista.appendChild(li);
-      });
-    }
-    document.getElementById('form-sim').addEventListener('input', simular);
-    simular();
+  ${B("╭─────────────╮ ╭─────────────╮ ╭─────────────╮ ╭─────────────╮")}
+  ${B("│")} <span class="c-ind">4</span>           ${B("│")} ${B("│")} <span class="c-ind">2</span>           ${B("│")} ${B("│")} <span class="c-ind">2</span>           ${B("│")} ${B("│")} <span class="c-ind">33%</span>         ${B("│")}
+  ${B("│")} ${M("alunos")}      ${B("│")} ${B("│")} ${M("professores")} ${B("│")} ${B("│")} ${M("disciplinas")} ${B("│")} ${B("│")} ${M("aprovação")}   ${B("│")}
+  ${B("╰─────────────╯ ╰─────────────╯ ╰─────────────╯ ╰─────────────╯")}
 
-    // ---------- Botões "copiar" dos comandos ----------
-    document.querySelectorAll('.comando button').forEach(function (b) {
-      b.addEventListener('click', function () {
-        var texto = b.parentNode.querySelector('code').textContent;
-        try {
-          navigator.clipboard.writeText(texto).then(function () {
-            b.textContent = 'copiado!';
-            setTimeout(function () { b.textContent = 'copiar'; }, 1500);
-          });
-        } catch (e) {}
-      });
-    });
-  </script>
+  ${M("CADASTROS")} ${B("─".repeat(56))}
+     <span class="c-ind">1</span> ${B("│")} Alunos            ${M("listar, cadastrar, editar, remover")}
+     <span class="c-ind">2</span> ${B("│")} Professores       ${M("listar, cadastrar, editar, remover")}
+     <span class="c-ind">3</span> ${B("│")} Disciplinas       ${M("listar, cadastrar, editar, remover")}
+
+  ${M("TURMAS")} ${B("─".repeat(59))}
+     <span class="c-ind">4</span> ${B("│")} Turmas            ${M("criar, encerrar, remover")}
+     <span class="c-ind">5</span> ${B("│")} Matrículas        ${M("matricular e desmatricular")}
+
+     ${M("0")} ${B("│")} ${M("← Trocar de perfil")}
+
+  <span class="c-ind">❯</span> Escolha uma opção${M(":")} <span class="cursor"></span>`,
+
+  teacher:
+head("PROFESSOR", "c-tea", "Professor › Diário › ", "EDOO-2026.2") +
+`  <span class="c-tea">▍</span><span class="c-b">Estruturas de Dados Orientadas a Objetos</span>
+    ${M("EDOO-2026.2  ·  2026.2  ·  TER 10h-12h  ·  Prof. Ana Souza")}
+
+  ${B("╭────────────────┬────────────┬───────┬─────────────────┬──────────────────╮")}
+  ${B("│")} <span class="c-tea">Aluno</span>          ${B("│")} <span class="c-tea">Notas</span>      ${B("│")} <span class="c-tea">Média</span> ${B("│")} <span class="c-tea">Frequência</span>      ${B("│")} <span class="c-tea">Previsão</span>         ${B("│")}
+  ${B("├────────────────┼────────────┼───────┼─────────────────┼──────────────────┤")}
+  ${B("│")} Joao Silva     ${B("│")} 7.5 ${M("·")} 6.0  ${B("│")}   <span class="c-warn">6.8</span> ${B("│")} <span class="c-good">████████</span>${B("░░")}  83% ${B("│")} <span class="c-warn">⚑ Em prova final</span> ${B("│")}
+  ${B("│")} Maria Oliveira ${B("│")} 4.0 ${M("·")} 5.0  ${B("│")}   <span class="c-warn">4.5</span> ${B("│")} <span class="c-good">██████████</span> 100% ${B("│")} <span class="c-warn">⚑ Em prova final</span> ${B("│")}
+  ${B("│")} Julia Costa    ${B("│")} 9.0 ${M("·")} 10.0 ${B("│")}   <span class="c-good">9.5</span> ${B("│")} <span class="c-good">██████████</span> 100% ${B("│")} <span class="c-good">✔ Aprovado</span>       ${B("│")}
+  ${B("╰────────────────┴────────────┴───────┴─────────────────┴──────────────────╯")}
+
+  ${B("╭───────────────────╮ ╭───────────────────╮ ╭───────────────────╮")}
+  ${B("│")} <span class="c-tea">6.9</span>               ${B("│")} ${B("│")} <span class="c-tea">1 de 3</span>            ${B("│")} ${B("│")} <span class="c-tea">33%</span>               ${B("│")}
+  ${B("│")} ${M("média da turma")}    ${B("│")} ${B("│")} ${M("aprovados (prev.)")} ${B("│")} ${B("│")} ${M("aprovação (prev.)")} ${B("│")}
+  ${B("╰───────────────────╯ ╰───────────────────╯ ╰───────────────────╯")}
+
+  ${M("Regra: média ≥ 7 aprova · < 3 reprova · entre 3 e 7 faz prova final")}
+
+  ${M("Pressione ENTER para continuar…")} <span class="cursor"></span>`,
+
+  student:
+head("ALUNO", "c-orc", "Aluno › ", "Horário") +
+`  <span class="c-orc">▍</span><span class="c-b">Horário semanal</span>
+    ${M("Turmas do semestre atual")}
+
+  ${B("╭─────────┬─────────┬─────────┬─────────┬─────────┬─────────╮")}
+  ${B("│")} <span class="c-orc">Horário</span> ${B("│")} <span class="c-orc">SEG</span>     ${B("│")} <span class="c-orc">TER</span>     ${B("│")} <span class="c-orc">QUA</span>     ${B("│")} <span class="c-orc">QUI</span>     ${B("│")} <span class="c-orc">SEX</span>     ${B("│")}
+  ${B("├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤")}
+  ${B("│")} 8h-10h  ${B("│")} <span class="c-orc">CIN0130</span> ${B("│")}   ${M("·")}     ${B("│")} <span class="c-orc">CIN0130</span> ${B("│")}   ${M("·")}     ${B("│")}   ${M("·")}     ${B("│")}
+  ${B("│")} 10h-12h ${B("│")}   ${M("·")}     ${B("│")} <span class="c-orc">CIN0135</span> ${B("│")}   ${M("·")}     ${B("│")} <span class="c-orc">CIN0135</span> ${B("│")}   ${M("·")}     ${B("│")}
+  ${B("╰─────────┴─────────┴─────────┴─────────┴─────────┴─────────╯")}
+
+  <span class="c-orc">CIN0130</span>  Introducao a Programacao
+  <span class="c-orc">CIN0135</span>  Estruturas de Dados Orientadas a Objetos
+
+  ${M("SITUAÇÃO")} ${B("─".repeat(57))}
+    Estruturas de Dados OO   <span class="c-info">◷ Cursando</span>     ${M("previsão")} <span class="c-warn">⚑ Em prova final</span>
+    Introducao a Programacao <span class="c-good">✔ Aprovado</span>     ${M("média")} 8.5
+
+  ${M("Pressione ENTER para continuar…")} <span class="cursor"></span>`
+};
+
+const screen = document.getElementById("screen");
+const tabs = document.querySelectorAll(".tab");
+function show(key) {
+  screen.innerHTML = screens[key];
+  tabs.forEach(t => t.setAttribute("aria-selected", t.dataset.k === key));
+}
+tabs.forEach(t => t.addEventListener("click", () => show(t.dataset.k)));
+show("admin");
+
+// ── Vídeo: quando o VIDEO_ID for preenchido, mostra o player ──
+const box = document.getElementById("video-box");
+const id = box.dataset.videoId;
+if (id && id !== "VIDEO_ID") {
+  box.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}" title="Vídeo de apresentação do projeto" allowfullscreen></iframe>`;
+}
+
+// ── Animação de entrada ao rolar ──
+const io = new IntersectionObserver(entries => entries.forEach(e => {
+  if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+}), { threshold: 0.12 });
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+</script>
 </body>
 </html>
