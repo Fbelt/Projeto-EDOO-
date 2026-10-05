@@ -53,7 +53,7 @@ string number(double value) {
     return out.str();
 }
 
-string boolean(bool value) {
+string jsonBool(bool value) {
     return value ? "true" : "false";
 }
 
@@ -78,7 +78,7 @@ string disciplineJson(Discipline& d) {
     string teacher = d.getTeacher() != nullptr ? text(d.getTeacher()->getMatriculaFuncional()) : "null";
     return "{\"codigo\": " + text(d.getCode()) + ", \"nome\": " + text(d.getName()) +
            ", \"cargaHoraria\": " + to_string(d.getWorkload()) + ", \"ementa\": " + text(d.getSyllabus()) +
-           ", \"temFinal\": " + boolean(d.getHasFinalExam()) + ", \"professor\": " + teacher + "}";
+           ", \"temFinal\": " + jsonBool(d.getHasFinalExam()) + ", \"professor\": " + teacher + "}";
 }
 
 // Matrícula de um aluno numa turma, com tudo já calculado pelas classes
@@ -109,7 +109,7 @@ string groupJson(ClassGroup& g) {
     return "{\"codigo\": " + text(g.getCode()) + ", \"disciplina\": " + text(g.getDiscipline()->getCode()) +
            ", \"professor\": " + teacher + ", \"semestre\": " + text(g.getSemester()) +
            ", \"horario\": " + text(g.getSchedule()) + ", \"vagas\": " + to_string(g.getCapacity()) +
-           ", \"encerrada\": " + boolean(g.isFinished()) + ", \"matriculas\": [" + enrollments + "]}";
+           ", \"encerrada\": " + jsonBool(g.isFinished()) + ", \"matriculas\": [" + enrollments + "]}";
 }
 
 // Tudo de uma vez: o React pede isso ao abrir e depois de cada mudança

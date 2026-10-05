@@ -44,14 +44,34 @@ Para testar com os dados de exemplo: professor **Ana Souza** (turma EDOO, aberta
 
 Além do menu no terminal, o sistema tem uma interface gráfica feita em **React**. Ela usa as mesmas classes C++ e o mesmo banco.
 
+**1. Compilar o servidor**
+
 ```
-make servidor     # compila o servidor (mingw32-make servidor no Windows)
-./servidor        # depois abra http://localhost:8080 no navegador
+make servidor            # Linux / Mac
+mingw32-make servidor    # Windows
 ```
 
-Como funciona: o navegador não consegue chamar classes C++ direto. Por isso o `servidor` (em `api/server.cpp`) fica ouvindo em `localhost:8080`. O React pede os dados, e o servidor chama as classes do grupo e responde em JSON. As regras de aprovação, de vagas etc. continuam todas no C++.
+**2. Ligar o servidor**
 
-A pasta `web/dist` já vem compilada. Só quem for mudar as telas precisa do Node.js: `cd web`, `npm install` e `npm run dev` (com o `./servidor` ligado).
+```
+./servidor               # Linux / Mac
+.\servidor.exe           # Windows (PowerShell)
+```
+
+**3. Abrir no navegador:** http://localhost:8080 (o mesmo login de teste: professor **Ana Souza** ou aluno **Joao Silva**).
+
+Como funciona: o navegador não consegue chamar classes C++ direto. Por isso o `servidor` (em `api/server.cpp`) fica ouvindo em `localhost:8080`. Ele entrega as telas (a pasta `web/dist`) e responde os pedidos do React em JSON, chamando as classes do grupo. As regras de aprovação, de vagas etc. continuam todas no C++.
+
+**Só para quem for mudar as telas** (precisa do Node.js). Com o servidor ligado, em outro terminal:
+
+```
+cd web
+npm install
+npm run dev              # abra a URL que aparecer (normalmente http://localhost:5173)
+npm run build            # no fim, atualiza a pasta web/dist
+```
+
+Em modo de desenvolvimento, os pedidos para `/api` são repassados para o servidor na porta 8080 (veja `web/vite.config.js`).
 
 > No Windows, o servidor precisa de um MinGW com suporte a threads (por exemplo o do MSYS2 ou o WinLibs).
 
