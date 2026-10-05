@@ -2,7 +2,7 @@
 
 Projeto prático da disciplina **CIN0135 - Estruturas de Dados Orientadas a Objetos (EDOO)**, CIn/UFPE.
 
-É um sistema de terminal (menu de texto), feito em **C++** com banco de dados **SQLite**, para cuidar de alunos, professores, disciplinas, turmas e matrículas, com notas, frequência e situação de cada aluno (aprovado ou reprovado).
+É um sistema feito em **C++** com banco de dados **SQLite**, que pode ser usado pelo menu no terminal ou por uma interface web em React, para cuidar de alunos, professores, disciplinas, turmas e matrículas, com notas, frequência e situação de cada aluno (aprovado ou reprovado).
 
 ## Links
 
