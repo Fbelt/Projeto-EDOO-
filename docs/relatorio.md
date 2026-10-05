@@ -10,7 +10,7 @@
 
 ## 1. Descrição do sistema
 
-O sistema gerencia a parte acadêmica de uma escola ou universidade: alunos, professores, disciplinas, turmas e matrículas, com notas, frequência e situação de cada aluno. Ele roda no terminal, com um menu de texto, e guarda os dados em um banco SQLite (um arquivo local, sem servidor).
+O sistema gerencia a parte acadêmica de uma escola ou universidade: alunos, professores, disciplinas, turmas e matrículas, com notas, frequência e situação de cada aluno. Ele pode ser usado pelo menu de texto no terminal ou por uma interface web em React (bônus), e guarda os dados em um banco SQLite (um arquivo local). As duas interfaces usam as mesmas classes C++ e o mesmo banco.
 
 O usuário entra em um de três perfis:
 
@@ -25,6 +25,7 @@ A situação do aluno é calculada automaticamente. Enquanto a turma está abert
 - **C++17**, compilado com g++ (MinGW no Windows)
 - **SQLite** na versão "amalgamation" (um único arquivo `.c` compilado junto com o projeto)
 - Interface no terminal, com cores ANSI e caracteres Unicode
+- Interface web (bônus) em **React**, ligada às classes C++ por um pequeno servidor HTTP (`api/server.cpp`, com a biblioteca cpp-httplib)
 
 ## 3. Arquitetura
 
@@ -91,6 +92,6 @@ Na primeira execução, o banco `data/escola.db` é criado com dados de exemplo.
 | Integrante | Parte |
 |---|---|
 | Pedro Henrique | Pessoa, Aluno, Professor e Factory |
-| Felipe Belfort | Disciplina, Turma e Matrícula |
+| Felipe Belfort | Disciplina, Turma, Matrícula, GitHub Pages e documentação |
 | Gabriel Geller | Estrutura do projeto e banco de dados |
 | Luis Henrique | Interface de console, GitHub Pages, relatório e vídeo |

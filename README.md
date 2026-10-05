@@ -151,6 +151,6 @@ As classes do sistema não têm SQL dentro delas. Quem conversa com o banco são
 | Integrante | Parte | Documentação |
 |---|---|---|
 | Pedro Henrique | Pessoa, Aluno, Professor e Factory | [`docs/integrante1.md`](docs/integrante1.md) |
-| Felipe Belfort | Disciplina, Turma e Matrícula | [`docs/integrante2.md`](docs/integrante2.md) |
+| Felipe Belfort | Disciplina, Turma, Matrícula, GitHub Pages e documentação | [`docs/integrante2.md`](docs/integrante2.md) |
 | Gabriel Geller | Estrutura do projeto e banco de dados (SQLite) | [`docs/integrante3.md`](docs/integrante3.md) |
 | Luis Henrique | Menu no terminal, relatório e vídeo | [`docs/integrante4.md`](docs/integrante4.md) |

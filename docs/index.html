@@ -183,9 +183,27 @@ code, .code, pre { font-family: var(--mono); font-size: 13px; font-variant-ligat
 .k { color: var(--violet); } .ty { color: var(--teal); } .cm { color: var(--text-3); } .fn { color: var(--info); }
 @media (max-width: 720px) { .oop-row { grid-template-columns: 1fr; gap: var(--s-8); } }
 
-/* UML */
-.uml { padding: var(--s-32); border-radius: var(--radius); border: 1px solid var(--line); background: #f8fafc; overflow-x: auto; }
-.uml .mermaid { min-width: 720px; display: flex; justify-content: center; }
+/* UML (caixas desenhadas em HTML/CSS) */
+.uml {
+  padding: var(--s-32) var(--s-16); border-radius: var(--radius); border: 1px solid var(--line); background: var(--bg-raised);
+  display: flex; flex-wrap: wrap; gap: var(--s-32); justify-content: center; align-items: flex-start;
+}
+.tree { display: flex; flex-direction: column; align-items: center; }
+.tree-label { font: 600 var(--t-meta) var(--mono); text-transform: uppercase; letter-spacing: .08em; margin-bottom: var(--s-16); }
+.box {
+  font: 500 var(--t-ui) var(--mono); color: var(--text); text-align: center;
+  border: 1px solid var(--line-strong); background: var(--bg-term); border-radius: var(--radius-sm); padding: var(--s-8) var(--s-16);
+}
+.box small { display: block; color: var(--text-3); font-size: var(--t-meta); font-weight: 400; }
+.box.abstract { border-style: dashed; }
+.box.abstract b { font-style: italic; }
+.kids { display: flex; gap: var(--s-16); position: relative; padding-top: 18px; }
+.kids::before { content: ""; position: absolute; top: 0; left: 25%; right: 25%; height: 1px; background: var(--line-strong); }
+.kids .box { position: relative; }
+.kids .box::before { content: ""; position: absolute; top: -18px; left: 50%; width: 1px; height: 18px; background: var(--line-strong); }
+.kids.one::before { display: none; }
+.arrow { font: var(--t-meta) var(--mono); color: var(--text-3); margin: var(--s-8) 0; }
+.uml-note { margin-top: var(--s-16); color: var(--text-3); font-size: var(--t-meta); text-align: center; }
 
 /* Regras */
 .rules { display: grid; gap: var(--s-16); grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
@@ -252,7 +270,7 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: var(--s-16); justify-content
 <header class="hero">
   <div class="wrap">
     <span class="eyebrow"><span class="dot" aria-hidden="true"></span>CIN0135 · Estruturas de Dados Orientadas a Objetos · CIn/UFPE</span>
-    <h1>Gestão acadêmica no terminal e na web,<br><span class="grad">feita com orientação a objetos.</span></h1>
+    <h1>Gestão acadêmica<br><span class="grad">feita com orientação a objetos.</span></h1>
     <p class="lead">Alunos, professores, disciplinas, turmas, notas e frequência em um sistema em C++ com banco SQLite, usado pelo menu no terminal ou por uma interface web em React. A situação de cada aluno é calculada automaticamente.</p>
     <div class="actions">
       <a class="btn btn-primary" href="https://github.com/Fbelt/Projeto-EDOO-">Ver código no GitHub ↗</a>
@@ -373,80 +391,35 @@ e-><span class="fn">calculateStatus</span>();     <span class="cm">// regra norm
     <h2>Diagrama de classes (UML)</h2>
     <p class="section-lead">As classes de domínio não têm SQL dentro delas. Quem conversa com o banco são os repositórios.</p>
     <div class="uml reveal">
-<pre class="mermaid">
-classDiagram
-  direction LR
-  class Person {
-    &lt;&lt;abstract&gt;&gt;
-    -string name
-    -string cpf
-    -string birthday
-    -string contato
-    +exibirInfo()* void
-  }
-  class Student {
-    -string matricula
-    -string curso
-    +exibirInfo() void
-  }
-  class Teacher {
-    -string matriculaFuncional
-    -vector~string~ disciplinas
-    +exibirInfo() void
-  }
-  class Discipline {
-    -string code
-    -string name
-    -int workload
-    -bool hasFinalExam
-    -Teacher* teacher
-  }
-  class ClassGroup {
-    -string code
-    -string semester
-    -string schedule
-    -int capacity
-    -bool finished
-    -vector~Enrollment*~ enrollments
-    +enroll(Student&) bool
-    +unenroll(Student&) bool
-    +getStatus(Enrollment*) string
-    +finish() void
-  }
-  class Enrollment {
-    -Student* student
-    -vector~double~ grades
-    -int classes
-    -int presences
-    -double finalGrade
-    +calculateAverage() double
-    +calculateAttendance() double
-    +calculateStatus() string
-  }
-  class FinalExamEnrollment {
-    +calculateStatus() string
-  }
-  class Database {
-    &lt;&lt;singleton&gt;&gt;
-    -Database()
-    +getInstance()$ Database&
-    +execute(string) void
-    +query(string) vector
-  }
-  class PersonFactory {
-    +criar(tipo, ...)$ Person*
-  }
-  Person <|-- Student
-  Person <|-- Teacher
-  Enrollment <|-- FinalExamEnrollment
-  Discipline --> Teacher : responsável
-  ClassGroup --> Discipline
-  ClassGroup --> Teacher
-  ClassGroup *-- Enrollment : matrículas
-  Enrollment --> Student
-  PersonFactory ..> Person : cria
-</pre>
+      <div class="tree">
+        <span class="tree-label" style="color:var(--violet)">Herança</span>
+        <div class="box abstract"><b>Person</b><small>abstrata · exibirInfo() = 0</small></div>
+        <div class="kids">
+          <div class="box">Student<small>matrícula, curso</small></div>
+          <div class="box">Teacher<small>matrícula funcional</small></div>
+        </div>
+        <div class="arrow">criados por ↑</div>
+        <div class="box">PersonFactory<small>Factory Method</small></div>
+      </div>
+      <div class="tree">
+        <span class="tree-label" style="color:var(--teal)">Polimorfismo</span>
+        <div class="box">Discipline<small>professor responsável</small></div>
+        <div class="arrow">tem turmas ↓</div>
+        <div class="box">ClassGroup<small>vector&lt;Enrollment*&gt;</small></div>
+        <div class="arrow">guarda ↓</div>
+        <div class="box">Enrollment<small>virtual calculateStatus()</small></div>
+        <div class="kids one">
+          <div class="box">FinalExamEnrollment<small>override calculateStatus()</small></div>
+        </div>
+      </div>
+      <div class="tree">
+        <span class="tree-label" style="color:var(--info)">Persistência</span>
+        <div class="box">Database<small>Singleton</small></div>
+        <div class="arrow">usado por ↓</div>
+        <div class="box">5 Repositórios<small>objeto ⇄ SQL</small></div>
+      </div>
     </div>
+    <p class="uml-note">Borda tracejada = classe abstrata. Linha contínua = herança.</p>
   </div>
 </section>
 
@@ -510,7 +483,7 @@ npm run dev</code></div></div>
     <p class="section-lead">Grupo de quatro pessoas, uma parte para cada um.</p>
     <div class="team">
       <div class="person reveal"><div class="avatar" style="background:var(--violet)">PH</div><b>Pedro Henrique</b><span>Pessoa, Aluno, Professor e Factory</span></div>
-      <div class="person reveal"><div class="avatar" style="background:var(--indigo)">FB</div><b>Felipe Belfort</b><span>Disciplina, Turma e Matrícula</span></div>
+      <div class="person reveal"><div class="avatar" style="background:var(--indigo)">FB</div><b>Felipe Belfort</b><span>Disciplina, Turma, Matrícula, GitHub Pages e documentação</span></div>
       <div class="person reveal"><div class="avatar" style="background:var(--teal)">GG</div><b>Gabriel Geller</b><span>Estrutura do projeto e banco SQLite</span></div>
       <div class="person reveal"><div class="avatar" style="background:var(--orchid)">LH</div><b>Luis Henrique</b><span>Interface de console, relatório e vídeo</span></div>
     </div>
@@ -525,10 +498,6 @@ npm run dev</code></div></div>
   </div>
 </footer>
 
-<script type="module">
-  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";
-  mermaid.initialize({ startOnLoad: true, theme: "neutral", fontFamily: "Inter, sans-serif" });
-</script>
 <script>
 // ── Telas do terminal (baseadas na saída real do programa) ──
 const B = s => `<span class="c-brd">${s}</span>`;
