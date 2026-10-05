@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Gestão Acadêmica</title>
+  <meta name="description" content="Projeto de EDOO (CIN0135) - CIn/UFPE, feito em C++ com SQLite">
+  <style>
+    /* Cores do site: verde e preto */
+    :root {
+      --bg: #0a0a0a;
+      --card: #141414;
+      --text: #e8f5e9;
+      --muted: #9fb3a3;
+      --border: #263026;
+      --accent: #22c55e;
+      --header-text: #0a0a0a;
+      --code-bg: #000000;
+      --code-text: #4ade80;
+      --ok: #22c55e;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      background: var(--accent);
+      color: var(--header-text);
+      padding: 56px 16px 48px;
+      text-align: center;
+    }
+    header h1 { margin: 0 0 8px; font-size: clamp(1.8rem, 5vw, 2.6rem); }
+    header p { margin: 0 auto; max-width: 640px; opacity: 0.92; }
+
+    .botoes { margin-top: 24px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .botao {
+      display: inline-block;
+      padding: 10px 18px;
+      border: 2px solid var(--header-text);
+      background: var(--header-text);
+      border-radius: 8px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .botao:hover { background: transparent; color: var(--header-text); }
+    .botao.desativado { opacity: 0.55; pointer-events: none; }
+
+    main { max-width: 960px; margin: 0 auto; padding: 32px 16px 64px; }
+
+    section { margin-bottom: 40px; }
+    h2 { font-size: 1.4rem; border-bottom: 2px solid var(--accent); padding-bottom: 6px; }
+
+    .grade {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .card h3 { margin: 0 0 4px; font-size: 1.05rem; }
+    .card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+    .card a { color: var(--accent); font-weight: 600; text-decoration: none; }
+
+    .tabela { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 10px; overflow: hidden; }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { background: #0f2a17; color: var(--accent); }
+
+    code { font-family: Consolas, "Courier New", monospace; font-size: 0.92em; }
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 16px;
+      border-radius: 10px;
+      overflow-x: auto;
+    }
+
+    ul.status { list-style: none; padding: 0; }
+    ul.status li { padding: 4px 0; }
+    .feito { color: var(--ok); font-weight: 700; }
+
+    footer { text-align: center; color: var(--muted); font-size: 0.9rem; padding: 24px 16px; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+  <!-- Topo: nome do projeto e links principais -->
+  <header>
+    <h1>Sistema de Gestão Acadêmica</h1>
+    <p>Projeto da disciplina <strong>CIN0135 - Estruturas de Dados Orientadas a Objetos</strong>, CIn/UFPE.
+      Sistema de terminal feito em <strong>C++</strong> com banco de dados <strong>SQLite</strong>.</p>
+    <div class="botoes">
+      <a class="botao" href="https://github.com/Fbelt/Projeto-EDOO-">💻 Código no GitHub</a>
+      <a class="botao desativado" href="#">📄 Relatório (em breve)</a>
+      <a class="botao desativado" href="#">🎥 Vídeo (em breve)</a>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- O que o sistema faz -->
+    <section>
+      <h2>Sobre o sistema</h2>
+      <p>O sistema cuida de alunos, professores, disciplinas, turmas e matrículas. Ele guarda as notas e a
+        frequência de cada aluno e calcula sozinho a situação dele: aprovado, reprovado por nota,
+        reprovado por falta ou cursando.</p>
+    </section>
+
+    <!-- Integrantes e o link da documentação de cada um -->
+    <section>
+      <h2>Equipe</h2>
+      <div class="grade">
+        <div class="card">
+          <h3>Pedro Henrique</h3>
+          <p>Pessoa, Aluno, Professor e Factory</p>
+          <p><a href="integrante1.html">Ver documentação →</a></p>
+        </div>
+        <div class="card">
+          <h3>Felipe Belfort</h3>
+          <p>Disciplina, Turma e Matrícula</p>
+          <p><a href="integrante2.html">Ver documentação →</a></p>
+        </div>
+        <div class="card">
+          <h3>Gabriel Geller</h3>
+          <p>Estrutura do projeto e banco de dados (SQLite)</p>
+          <p><a href="integrante3.html">Ver documentação →</a></p>
+        </div>
+        <div class="card">
+          <h3>Luis Henrique</h3>
+          <p>Menu no terminal, relatório e vídeo</p>
+          <p>Documentação em breve</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Conceitos de OOP pedidos na avaliação -->
+    <section>
+      <h2>Conceitos de Orientação a Objetos</h2>
+      <div class="tabela">
+        <table>
+          <tr><th>Conceito</th><th>Onde aparece</th></tr>
+          <tr><td><strong>Classes e objetos</strong></td><td>Cada entidade do sistema é uma classe</td></tr>
+          <tr><td><strong>Herança</strong></td><td><code>Student</code> e <code>Teacher</code> herdam de <code>Person</code>. <code>FinalExamEnrollment</code> herda de <code>Enrollment</code></td></tr>
+          <tr><td><strong>Classe abstrata</strong></td><td><code>Person</code> tem o método puro <code>exibirInfo() = 0</code></td></tr>
+          <tr><td><strong>Encapsulamento</strong></td><td>CPF, notas e frequência são <code>private</code> e só são acessados por getters e setters</td></tr>
+          <tr><td><strong>Polimorfismo</strong></td><td><code>exibirInfo()</code> muda entre aluno e professor. <code>calculateStatus()</code> muda entre <code>Enrollment</code> e <code>FinalExamEnrollment</code></td></tr>
+          <tr><td><strong>Ponteiros e referências</strong></td><td><code>ClassGroup</code> guarda <code>vector&lt;Enrollment*&gt;</code>. Métodos recebem objetos por referência, ex: <code>enroll(Student&amp; s)</code></td></tr>
+          <tr><td><strong>Singleton</strong> (bônus)</td><td><code>Database::getInstance()</code></td></tr>
+          <tr><td><strong>Factory Method</strong> (bônus)</td><td><code>PersonFactory::criar("aluno", ...)</code></td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- Lista das classes -->
+    <section>
+      <h2>Classes</h2>
+      <div class="tabela">
+        <table>
+          <tr><th>Classe</th><th>O que é</th></tr>
+          <tr><td><code>Person</code></td><td>Pessoa (abstrata): nome, CPF, data de nascimento, contato</td></tr>
+          <tr><td><code>Student</code></td><td>Aluno, herda de <code>Person</code>: matrícula e curso</td></tr>
+          <tr><td><code>Teacher</code></td><td>Professor, herda de <code>Person</code>: matrícula funcional e disciplinas</td></tr>
+          <tr><td><code>Discipline</code></td><td>Disciplina: código, nome, carga horária, ementa, professor responsável</td></tr>
+          <tr><td><code>ClassGroup</code></td><td>Turma: disciplina, semestre, horário, limite de vagas e alunos matriculados</td></tr>
+          <tr><td><code>Enrollment</code></td><td>Matrícula de um aluno numa turma: notas, frequência e situação</td></tr>
+          <tr><td><code>FinalExamEnrollment</code></td><td>Matrícula de disciplina com prova final (muda a regra de aprovação)</td></tr>
+          <tr><td><code>PersonFactory</code></td><td>Cria um <code>Student</code> ou um <code>Teacher</code> a partir de um texto</td></tr>
+          <tr><td><code>Database</code></td><td>Conexão com o banco SQLite (Singleton)</td></tr>
+          <tr><td>Repositórios</td><td>Salvam e buscam cada tipo de objeto no banco</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- Regras de aprovação e de matrícula -->
+    <section>
+      <h2>Regras de negócio</h2>
+      <ul>
+        <li>A turma tem limite de vagas: não dá para matricular acima dele.</li>
+        <li>O mesmo aluno não pode ser matriculado duas vezes na mesma turma.</li>
+        <li>Turma encerrada não aceita matrícula. Enquanto a turma não acaba, a situação do aluno é "Cursando".</li>
+        <li><strong>Disciplina sem prova final:</strong> frequência abaixo de 75% reprova por falta. Média 7 ou mais aprova.</li>
+        <li><strong>Disciplina com prova final:</strong> média 7 ou mais aprova, abaixo de 3 reprova. Entre 3 e 7 o aluno faz a final e passa se (média + final) / 2 for 5 ou mais.</li>
+      </ul>
+    </section>
+
+    <!-- Saída real do programa com os dados de exemplo -->
+    <section>
+      <h2>Exemplo de saída</h2>
+<pre>4 alunos, 2 professores, 2 disciplinas, 2 turmas
+
+Turma IP-2026.1 - Introducao a Programacao
+Joao Silva | media 8.5 | freq 100% | Aprovado
+Maria Oliveira | media 8.5 | freq 60% | Reprovado por falta
+Pedro Santos | media 4.5 | freq 90% | Reprovado por nota
+Media da turma: 7.16667
+Aprovados: 1 de 3</pre>
+    </section>
+
+    <!-- Passo a passo para compilar -->
+    <section>
+      <h2>Como compilar e rodar</h2>
+      <p>Você precisa do <strong>g++</strong> (MinGW no Windows). Na pasta do projeto:</p>
+<pre>mingw32-make
+./sistema</pre>
+      <p>No Linux/Mac, troque <code>mingw32-make</code> por <code>make</code>. Na primeira vez, o programa cria o banco
+        em <code>data/escola.db</code> com dados de exemplo.</p>
+    </section>
+
+    <!-- O que já foi feito -->
+    <section>
+      <h2>Situação atual</h2>
+      <ul class="status">
+        <li><span class="feito">✔</span> Pessoa, Aluno, Professor e Factory</li>
+        <li><span class="feito">✔</span> Disciplina, Turma e Matrícula, com as regras de aprovação</li>
+        <li><span class="feito">✔</span> Banco de dados SQLite, repositórios e dados de exemplo</li>
+        <li><span class="feito">✔</span> GitHub Pages</li>
+        <li>⬜ Menu no terminal (Administrador, Professor e Aluno)</li>
+        <li>⬜ Relatório e vídeo</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer>
+    CIN0135 - Estruturas de Dados Orientadas a Objetos · CIn/UFPE · 2026
+  </footer>
+
+</body>
+</html>
