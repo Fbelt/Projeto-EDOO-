@@ -14,7 +14,7 @@
 
 `Person` é a classe base **abstrata** — ela não pode ser instanciada diretamente porque declara o método puro `exibirInfo()`. Isso força toda subclasse a implementar sua própria versão antes de poder ser usada.
 
-`Student` e `Teacher` herdam de `Person` com `public`, o que significa que todo aluno **é uma** pessoa e todo professor **é um** professor. Os atributos comuns (nome, CPF, data de nascimento, contato) ficam em `Person` e não precisam ser repetidos nas subclasses. Cada subclasse só acrescenta o que é seu: matrícula/curso para o aluno, matrícula funcional/disciplinas para o professor.
+`Student` e `Teacher` herdam de `Person` com `public`, o que significa que todo aluno **é uma** pessoa e todo professor **é uma** pessoa. Os atributos comuns (nome, CPF, data de nascimento, contato) ficam em `Person` e não precisam ser repetidos nas subclasses. Cada subclasse só acrescenta o que é seu: matrícula/curso para o aluno, matrícula funcional/disciplinas para o professor.
 
 O destrutor virtual em `Person` garante que, ao deletar um ponteiro `Person*` que aponta para um `Student` ou `Teacher`, o destrutor correto da subclasse seja chamado — sem isso, haveria vazamento de memória.
 
