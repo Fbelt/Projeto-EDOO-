@@ -1,9 +1,21 @@
-// Conversa com o servidor C++ (api/server.cpp).
+// Conversa com o servidor C++ (api/server.cpp). Contrato inalterado:
 // GET /api/dados devolve tudo; os POST mudam algo e devolvem { mensagem, dados }.
 
+export class ApiError extends Error {
+  constructor(message, { offline = false } = {}) {
+    super(message);
+    this.offline = offline;
+  }
+}
+
 export async function loadAll() {
-  const res = await fetch("/api/dados");
-  if (!res.ok) throw new Error("Não foi possível falar com o servidor.");
+  let res;
+  try {
+    res = await fetch("/api/dados");
+  } catch {
+    throw new ApiError("Sem conexão.", { offline: true });
+  }
+  if (!res.ok) throw new ApiError("Não foi possível carregar os dados.");
   return res.json();
 }
 
@@ -16,9 +28,10 @@ export async function send(path, fields) {
       body: new URLSearchParams(fields),
     });
   } catch {
-    throw new Error("Servidor desligado. Rode ./servidor e tente de novo.");
+    throw new ApiError("Sem conexão.", { offline: true });
   }
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.erro || "Algo deu errado.");
+  let json = {};
+  try { json = await res.json(); } catch { /* resposta vazia */ }
+  if (!res.ok) throw new ApiError(json.erro || "Não foi possível concluir. Tente de novo.");
   return json;
 }

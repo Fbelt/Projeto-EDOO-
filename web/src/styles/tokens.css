@@ -1,0 +1,88 @@
+/* ═══════════════════════════════════════════════════════════════
+   EDOO · Campus OS — tokens
+   Institucional + tecnológico. Azul só onde há ação, seleção ou marca.
+   Verde/âmbar/vermelho só com significado (aprovado / atenção / risco).
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  color-scheme: light;
+
+  /* ── Superfícies ── */
+  --bg: #f7f9fc;
+  --surface: #ffffff;
+  --subtle: #f8fafc;
+  --hover: #f2f5f9;
+  --skeleton: #eef1f5;
+
+  /* ── Texto (contraste sobre #fff) ── */
+  --text: #101828;         /* 17.8:1 */
+  --text-2: #475467;       /* 7.6:1 */
+  --text-3: #667085;       /* 4.9:1 */
+  --text-disabled: #98a2b3;
+
+  /* ── Bordas ── */
+  --border: #e4e7ec;
+  --border-strong: #d0d5dd;
+  --field: #8a94a6;        /* borda de campo · 3.1:1 */
+
+  /* ── Marca ── */
+  --navy: #0b1f3a;
+  --navy-2: #0d2748;
+  --navy-3: #16365f;       /* hover na sidebar */
+  --navy-text: #c7d2e3;    /* texto secundário sobre navy · 9:1 */
+  --primary: #155eef;      /* 5.0:1 sobre #fff */
+  --primary-hover: #0f4fd1;
+  --primary-press: #0b43b3;
+  --primary-weak: #eef4ff;
+  --primary-border: #b2ccff;
+  --primary-ring: rgb(21 94 239 / 0.28);
+  --neutral-bar: #d0d5dd;  /* trilho de gráficos */
+
+  /* ── Semânticas discretas ── */
+  --success: #067647;  --success-weak: #ecfdf3;  --success-border: #abefc6;  --success-dot: #17b26a;
+  --warning: #b54708;  --warning-weak: #fffaeb;  --warning-border: #fedf89;  --warning-dot: #f79009;
+  --danger:  #b42318;  --danger-weak:  #fef3f2;  --danger-border:  #fecdca;  --danger-dot:  #f04438;
+
+  /* ── Tipografia (uma família) ── */
+  --font: "Inter Variable", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --t-display: 40px;       /* hero do login */
+  --t-page: 30px;          /* título de página */
+  --t-section: 18px;
+  --t-card: 15px;
+  --t-body: 14px;
+  --t-small: 13px;
+  --t-caption: 12px;
+  --t-metric: 28px;        /* números acadêmicos */
+
+  /* ── Espaço (régua de 4/8) ── */
+  --s-2: 2px; --s-4: 4px; --s-6: 6px; --s-8: 8px; --s-12: 12px; --s-16: 16px; --s-20: 20px;
+  --s-24: 24px; --s-32: 32px; --s-40: 40px; --s-48: 48px; --s-64: 64px;
+
+  /* ── Forma ── */
+  --r-sm: 6px;
+  --r: 8px;
+  --r-lg: 12px;
+  --shadow-xs: 0 1px 2px rgb(16 24 40 / 0.05);
+  --shadow-sm: 0 1px 3px rgb(16 24 40 / 0.06), 0 1px 2px rgb(16 24 40 / 0.04);
+  --shadow-pop: 0 16px 40px -12px rgb(16 24 40 / 0.22), 0 4px 10px -4px rgb(16 24 40 / 0.08);
+
+  /* ── Layout ── */
+  --sidebar: 232px;
+  --topbar: 60px;
+  --content-max: 1200px;
+  --bottom-nav: 64px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --target: 44px;          /* alvo de toque */
+  --control: 40px;         /* altura de botão/campo no desktop */
+
+  /* ── Movimento ── */
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --t-fast: 150ms;
+  --t-base: 200ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --t-fast: 0ms; --t-base: 0ms; }
+}
+
+/* Breakpoint principal: celular < 768px (barra inferior), ≥ 768px sidebar. */
