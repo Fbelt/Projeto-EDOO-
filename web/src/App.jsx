@@ -1,249 +1,274 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import {
-  LayoutDashboard, Users, GraduationCap, BookOpen, School, ScrollText, HelpCircle, LogOut,
-  CheckCircle2, AlertOctagon, X, ChevronRight, CalendarDays, Home, Layers, WifiOff, RefreshCw,
-} from "lucide-react";
+import { BookOpen, CalendarDays, ClipboardCheck, Clock, Flag, GraduationCap, Home, Layers, MoreHorizontal, PenLine, Sun, User, Users } from "lucide-react";
 import { loadAll, send } from "./api.js";
-import { indexData } from "./lib.js";
-import { Avatar, Button, SearchInput } from "./components/ui.jsx";
-import { HelpModal } from "./components/shared.jsx";
-import { Welcome, PersonPicker } from "./pages/Welcome.jsx";
-import * as Admin from "./pages/Admin.jsx";
-import * as Teacher from "./pages/Teacher.jsx";
-import * as Student from "./pages/Student.jsx";
+import { indexData, pendenciasProfessor, turmasDoAluno, turmasDoProfessor } from "./lib/rules.js";
+import { endSession, homeOf, pickPerson, readSession, startSession } from "./lib/session.js";
+import { Shell, HelpDialog } from "./components/layout.jsx";
+import { CommandPalette } from "./components/CommandPalette.jsx";
+import { ConfirmDialog, ErrorPanel, PageSkeleton, Toasts } from "./components/feedback.jsx";
+import { Login } from "./pages/Login.jsx";
+import * as Teacher from "./pages/teacher/index.js";
+import * as Student from "./pages/student/index.js";
+import * as Admin from "./pages/admin/index.js";
 
-// ── Contexto: dados + ações disponíveis para todas as telas ──
+// ── Contexto: dados reais da API + ações para todas as telas ──
 const AppCtx = createContext(null);
 export const useApp = () => useContext(AppCtx);
 
-// Rotas pelo "#" da URL: #/admin/turmas/EDOO-2026.2 → ["admin","turmas","EDOO-2026.2"]
-function useHashRoute() {
-  const read = () => window.location.hash.replace(/^#\/?/, "").split("?")[0].split("/").filter(Boolean).map(decodeURIComponent);
-  const [parts, setParts] = useState(read);
-  useEffect(() => {
-    const on = () => { setParts(read()); window.scrollTo(0, 0); };
-    window.addEventListener("hashchange", on);
-    return () => window.removeEventListener("hashchange", on);
-  }, []);
-  const go = useCallback((path) => { window.location.hash = "/" + path; }, []);
-  return [parts, go];
-}
+// Rotas pelo "#": #/admin/turmas/EDOO-2026.2?x → { parts: [...], query: "x" }
+const readHash = () => {
+  const raw = window.location.hash.replace(/^#\/?/, "");
+  const [path, query = ""] = raw.split("?");
+  return { parts: path.split("/").filter(Boolean).map(decodeURIComponent), query: decodeURIComponent(query) };
+};
 
 export default function App() {
   const [data, setData] = useState(null);
-  const [offline, setOffline] = useState(false);
+  const [loadError, setLoadError] = useState(null);
+  const [route, setRoute] = useState(readHash);
+  const [session, setSession] = useState(readSession);   // login fictício (só frontend)
   const [toasts, setToasts] = useState([]);
   const [help, setHelp] = useState(false);
-  const [parts, go] = useHashRoute();
+  const [palette, setPalette] = useState(false);
+  const [chrome, setChromeState] = useState({ hideNav: false, dock: false });
+  const [pendingNav, setPendingNav] = useState(null);
+  const dirty = useRef(null);   // mensagem quando há alterações não salvas
 
   const reload = useCallback(() => {
-    setOffline(false);
-    loadAll().then((d) => setData(indexData(d))).catch(() => setOffline(true));
+    setLoadError(null);
+    loadAll().then((d) => setData(indexData(d))).catch((e) => setLoadError(e));
   }, []);
   useEffect(reload, [reload]);
 
-  const toast = useCallback((text, kind = "ok") => {
-    const id = Math.random();
-    setToasts((t) => [...t, { id, text, kind }]);
-    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), kind === "ok" ? 3500 : 6000);
+  useEffect(() => {
+    const on = () => { setRoute(readHash()); window.scrollTo(0, 0); };
+    window.addEventListener("hashchange", on);
+    const beforeUnload = (e) => { if (dirty.current) { e.preventDefault(); e.returnValue = ""; } };
+    window.addEventListener("beforeunload", beforeUnload);
+    return () => { window.removeEventListener("hashchange", on); window.removeEventListener("beforeunload", beforeUnload); };
   }, []);
 
-  // Chama o servidor; se der certo, atualiza os dados e avisa (status sempre visível)
-  const act = useCallback(async (path, fields, { quiet } = {}) => {
+  const dismiss = useCallback((id) => setToasts((t) => t.filter((x) => x.id !== id)), []);
+  const toast = useCallback((text, { kind = "ok", undo, ms } = {}) => {
+    const id = Math.random();
+    setToasts((t) => [...t.slice(-2), { id, text, kind, undo }]);
+    setTimeout(() => dismiss(id), ms || (undo ? 8000 : kind === "err" ? 7000 : 4000));
+  }, [dismiss]);
+
+  // Navegar: se houver alterações não salvas, pergunta uma vez
+  const go = useCallback((path) => {
+    if (dirty.current) { setPendingNav(path); return; }
+    window.location.hash = "/" + path;
+  }, []);
+  const setDirty = useCallback((msg) => { dirty.current = msg || null; }, []);
+
+  // run: chama a API e atualiza os dados; o erro sobe para a tela tratar (estados inline)
+  const run = useCallback(async (path, fields) => {
+    const r = await send(path, fields);
+    setData(indexData(r.dados));
+    return r;
+  }, []);
+  // act: o mesmo, com aviso automático de sucesso ou erro
+  const act = useCallback(async (path, fields, { success } = {}) => {
     try {
-      const r = await send(path, fields);
-      setData(indexData(r.dados));
-      if (!quiet) toast(r.mensagem);
+      const r = await run(path, fields);
+      toast(success || r.mensagem);
       return true;
     } catch (e) {
-      toast(e.message, "err");
+      toast(e.offline ? "Sem conexão. Nada foi salvo." : e.message, { kind: "err" });
       return false;
     }
-  }, [toast]);
+  }, [run, toast]);
 
-  // Atalho "?" abre a ajuda em qualquer tela
+  // Login fictício: guarda só o perfil (e a pessoa correspondente) neste navegador
+  const login = useCallback((role, email) => {
+    const user = role === "admin" ? "" : pickPerson(role === "professor" ? data.professores : data.alunos, email);
+    startSession({ role, user, email });
+    setSession({ role, user, email });
+    window.location.hash = "/" + homeOf(role, user);
+  }, [data]);
+  const logout = useCallback(() => {
+    if (dirty.current) { setPendingNav("__logout"); return; }
+    endSession(); setSession(null); window.location.hash = "/";
+  }, []);
+
+  const setChrome = useCallback((c) => setChromeState((p) => ({ ...p, ...c })), []);
+
+  // Atalhos globais: ⌘K / Ctrl K abre a busca · "/" também · "?" abre a ajuda
   useEffect(() => {
     const on = (e) => {
-      if (e.key === "?" && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) setHelp(true);
+      const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName);
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); if (session) setPalette((p) => !p); }
+      else if (e.key === "/" && !typing && session) { e.preventDefault(); setPalette(true); }
+      else if (e.key === "?" && !typing && session) setHelp(true);
     };
     window.addEventListener("keydown", on);
     return () => window.removeEventListener("keydown", on);
-  }, []);
+  }, [session]);
 
-  const ctx = useMemo(() => ({ d: data, act, go, toast, openHelp: () => setHelp(true) }), [data, act, go, toast]);
+  const ctx = useMemo(() => ({
+    d: data, run, act, go, toast, route, chrome, setChrome, setDirty, session, login, logout,
+    openHelp: () => setHelp(true), openPalette: () => setPalette(true),
+  }), [data, run, act, go, toast, route, chrome, setChrome, setDirty, session, login, logout]);
 
-  if (offline) return <Offline onRetry={reload} />;
-  if (!data) return null;
+  if (loadError) {
+    return (
+      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24 }}>
+        <div style={{ width: "min(480px, 100%)" }}>
+          <ErrorPanel title={loadError.offline ? "Sem conexão com o servidor" : "Não foi possível carregar os dados"} onRetry={reload} retryLabel="Tentar agora">
+            Nenhum dado foi perdido: tudo fica no banco. Ligue o servidor (<code>./servidor</code>, na pasta do projeto) e tente de novo.
+          </ErrorPanel>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <AppCtx.Provider value={ctx}>
-      <Router parts={parts} />
-      {help && <HelpModal onClose={() => setHelp(false)} />}
-      <div className="toasts" aria-live="polite">
-        {toasts.map((t) => (
-          <div key={t.id} className={`toast ${t.kind}`} role="status">
-            {t.kind === "ok" ? <CheckCircle2 size={18} aria-hidden /> : <AlertOctagon size={18} aria-hidden />}
-            <p>{t.text}</p>
-            <button onClick={() => setToasts((x) => x.filter((y) => y.id !== t.id))} aria-label="Fechar aviso"><X size={16} /></button>
-          </div>
-        ))}
-      </div>
+      {!data ? <PageSkeleton /> : session ? <Router /> : <Login />}
+      {help && <HelpDialog onClose={() => setHelp(false)} />}
+      {palette && data && session && <CommandPalette items={paletteItems(data, session)} onClose={() => setPalette(false)} onGo={go} />}
+      {pendingNav !== null && (
+        <ConfirmDialog title="Sair sem salvar?" confirmLabel="Descartar alterações" cancelLabel="Continuar editando" destructive
+          onClose={() => setPendingNav(null)}
+          onConfirm={() => {
+            dirty.current = null;
+            if (pendingNav === "__logout") { endSession(); setSession(null); window.location.hash = "/"; }
+            else window.location.hash = "/" + pendingNav;
+            setPendingNav(null);
+          }}>
+          {dirty.current} Se sair agora, elas serão descartadas.
+        </ConfirmDialog>
+      )}
+      <Toasts items={toasts} dismiss={dismiss} />
     </AppCtx.Provider>
   );
 }
 
-function Offline({ onRetry }) {
-  return (
-    <div className="empty" style={{ minHeight: "100%" }}>
-      <div className="empty-icon"><WifiOff size={24} aria-hidden /></div>
-      <b>O servidor está desligado</b>
-      <p style={{ margin: 0, maxWidth: 420 }}>No terminal, dentro da pasta do projeto, rode <code>./servidor</code> e clique em tentar de novo.</p>
-      <Button variant="primary" icon={RefreshCw} onClick={onRetry}>Tentar de novo</Button>
-    </div>
-  );
+// Itens da Command Palette: só rotas que já existem
+function paletteItems(d, session) {
+  const items = [];
+  const add = (group, label, to, icon, hint) => items.push({ id: `${group}|${label}|${to}`, group, label, to, icon, hint });
+  if (session.role === "admin") {
+    add("Ir para", "Visão geral", "admin", Home); add("Ir para", "Turmas", "admin/turmas", Layers); add("Ir para", "Alunos", "admin/alunos", User);
+    add("Ir para", "Professores", "admin/professores", Users); add("Ir para", "Disciplinas", "admin/disciplinas", BookOpen);
+    add("Ações", "Nova turma", "admin/turmas?nova", Layers, "criar"); add("Ações", "Novo aluno", "admin/alunos?novo", User, "cadastrar");
+    d.turmas.forEach((t) => add("Turmas", `${t.codigo} · ${d.disciplinaBy[t.disciplina]?.nome}`, `admin/turmas/${t.codigo}`, Layers, t.encerrada ? "encerrada" : "em andamento"));
+    d.alunos.forEach((a) => add("Alunos", a.nome, `admin/alunos?${a.matricula}`, User, a.matricula));
+    d.professores.forEach((p) => add("Professores", p.nome, `admin/professores?${p.matricula}`, Users, p.matricula));
+    d.disciplinas.forEach((x) => add("Disciplinas", `${x.codigo} · ${x.nome}`, "admin/disciplinas", BookOpen));
+  } else if (session.role === "professor") {
+    const base = `professor/${session.user}`;
+    const mine = turmasDoProfessor(d, session.user).filter((t) => !t.encerrada);
+    add("Ir para", "Hoje", base, Sun); add("Ir para", "Turmas", `${base}/turmas`, Layers); add("Ir para", "Pendências", `${base}/pendencias`, Flag, `${pendenciasProfessor(d, session.user).length}`);
+    if (mine[0]) { add("Ações", "Fazer chamada", `${base}/turma/${mine[0].codigo}/chamada`, ClipboardCheck, mine[0].codigo); add("Ações", "Lançar notas", `${base}/turma/${mine[0].codigo}/notas`, PenLine, mine[0].codigo); }
+    turmasDoProfessor(d, session.user).forEach((t) => add("Turmas", `${t.codigo} · ${d.disciplinaBy[t.disciplina]?.nome}`, `${base}/turma/${t.codigo}`, Layers, t.encerrada ? "encerrada" : "em andamento"));
+  } else {
+    const base = `aluno/${session.user}`;
+    add("Ir para", "Início", base, Home); add("Ir para", "Horário", `${base}/horario`, CalendarDays); add("Ir para", "Histórico", `${base}/historico`, Clock);
+    turmasDoAluno(d, session.user, true).forEach((t) => add("Disciplinas", d.disciplinaBy[t.disciplina]?.nome, `${base}/disciplina/${t.codigo}`, GraduationCap, t.codigo));
+  }
+  return items;
 }
 
-// ── Qual tela mostrar para cada endereço ──
-function Router({ parts }) {
-  const { d, go } = useApp();
-  const [area, a, b, c] = parts;
+// ── Qual tela para cada endereço (e para cada perfil) ──
+function Router() {
+  const { d, route, session } = useApp();
+  const [area, a, b, c, e] = route.parts;
+  const home = homeOf(session.role, session.user);
 
-  if (!area) return <Welcome />;
-  if (area === "entrar") return <PersonPicker kind={a} />;
+  // Cada perfil só vê a própria área: o resto volta para a página inicial dele
+  const allowed = session.role === "admin" ? area === "admin" : area === (session.role === "professor" ? "professor" : "aluno") && a === session.user;
+  useEffect(() => { if (!allowed) window.location.hash = "/" + home; }, [allowed, home]);
+  if (!allowed) return <PageSkeleton />;
 
-  if (area === "admin") {
-    const crumbs = { alunos: "Alunos", professores: "Professores", disciplinas: "Disciplinas", turmas: "Turmas", historico: "Histórico escolar", busca: "Busca" };
-    const trail = [{ label: "Administrador", to: "admin" }];
-    if (a) trail.push({ label: crumbs[a] || a, to: `admin/${a}` });
-    if (b) trail.push({ label: a === "historico" ? d.alunoBy[b]?.nome : b });
-    let page = <Admin.Dashboard />;
-    if (a === "alunos") page = <Admin.Students />;
-    if (a === "professores") page = <Admin.Teachers />;
-    if (a === "disciplinas") page = <Admin.Disciplines />;
-    if (a === "turmas") page = b ? <Admin.GroupDetail code={b} /> : <Admin.Groups />;
-    if (a === "historico") page = <Admin.TranscriptPage mat={b} />;
-    if (a === "busca") page = <Admin.SearchPage />;
-    return (
-      <Shell profile="admin" name="Secretaria" role="Administrador" id="admin" trail={trail} current={a || "painel"}
-        nav={[
-          { group: "Visão geral", items: [{ key: "painel", label: "Painel", icon: LayoutDashboard, to: "admin" }] },
-          { group: "Cadastros", items: [
-            { key: "alunos", label: "Alunos", icon: GraduationCap, to: "admin/alunos" },
-            { key: "professores", label: "Professores", icon: Users, to: "admin/professores" },
-            { key: "disciplinas", label: "Disciplinas", icon: BookOpen, to: "admin/disciplinas" },
-          ] },
-          { group: "Acadêmico", items: [
-            { key: "turmas", label: "Turmas e matrículas", icon: School, to: "admin/turmas" },
-            { key: "historico", label: "Histórico escolar", icon: ScrollText, to: "admin/historico" },
-          ] },
-        ]}>
-        {page}
-      </Shell>
-    );
-  }
-
-  if (area === "professor") {
+  if (session.role === "professor") {
     const t = d.professorBy[a];
-    if (!t) return <PersonPicker kind="professor" />;
-    const trail = [{ label: "Professor", to: `professor/${a}` }];
-    if (b === "turma") trail.push({ label: c });
-    return (
-      <Shell profile="teacher" name={t.nome} role="Professor" id={t.matricula} trail={trail} current={b === "turma" ? c : "turmas"}
-        nav={[{ group: "Diário", items: [
-          { key: "turmas", label: "Minhas turmas", icon: Layers, to: `professor/${a}` },
-          ...d.turmas.filter((g) => g.professor === a).map((g) => ({ key: g.codigo, label: g.codigo, icon: School, to: `professor/${a}/turma/${g.codigo}` })),
-        ] }]}>
-        {b === "turma" ? <Teacher.Diary teacher={t} code={c} /> : <Teacher.Home teacher={t} />}
-      </Shell>
-    );
+    if (!t) return <SessionMissing />;
+    const pend = pendenciasProfessor(d, t.matricula).length;
+    const base = `professor/${a}`;
+    const current = b === "turma" || b === "turmas" ? "turmas" : b === "pendencias" ? "pendencias" : "hoje";
+    const nav = [
+      { key: "hoje", label: "Hoje", icon: Sun, to: base },
+      { key: "turmas", label: "Turmas", icon: Layers, to: `${base}/turmas` },
+      { key: "pendencias", label: "Pendências", icon: Flag, to: `${base}/pendencias`, tally: pend },
+    ];
+    const trail = [{ label: "Professor", to: base }];
+    let page = <Teacher.Today teacher={t} />;
+    if (b === "turmas") { trail.push({ label: "Turmas" }); page = <Teacher.Groups teacher={t} />; }
+    if (b === "pendencias") { trail.push({ label: "Pendências" }); page = <Teacher.Pending teacher={t} />; }
+    if (b === "turma") { trail.push({ label: "Turmas", to: `${base}/turmas` }, { label: c }); page = <Teacher.Group key={`${c}/${e}`} teacher={t} code={c} tab={e || "visao"} />; }
+    if (!b) trail.push({ label: "Hoje" });
+    return <Shell user={{ name: t.nome, role: "Professor" }} nav={nav} current={current} trail={trail}>{page}</Shell>;
   }
 
-  if (area === "aluno") {
+  if (session.role === "aluno") {
     const s = d.alunoBy[a];
-    if (!s) return <PersonPicker kind="aluno" />;
-    const labels = { horario: "Horário semanal", historico: "Histórico escolar" };
-    const trail = [{ label: "Aluno", to: `aluno/${a}` }];
-    if (b) trail.push({ label: labels[b] });
-    return (
-      <Shell profile="student" name={s.nome} role={s.curso} id={s.matricula} trail={trail} current={b || "inicio"}
-        nav={[{ group: "Semestre atual", items: [
-          { key: "inicio", label: "Minhas disciplinas", icon: Home, to: `aluno/${a}` },
-          { key: "horario", label: "Horário semanal", icon: CalendarDays, to: `aluno/${a}/horario` },
-        ] }, { group: "Vida acadêmica", items: [
-          { key: "historico", label: "Histórico escolar", icon: ScrollText, to: `aluno/${a}/historico` },
-        ] }]}>
-        {b === "horario" ? <Student.Timetable student={s} /> : b === "historico" ? <Student.History student={s} /> : <Student.Home student={s} />}
-      </Shell>
-    );
+    if (!s) return <SessionMissing />;
+    const base = `aluno/${a}`;
+    const current = b === "horario" ? "horario" : b === "historico" ? "historico" : "inicio";
+    const nav = [
+      { key: "inicio", label: "Início", icon: Home, to: base },
+      { key: "horario", label: "Horário", icon: CalendarDays, to: `${base}/horario` },
+      { key: "historico", label: "Histórico", icon: Clock, to: `${base}/historico` },
+    ];
+    const trail = [{ label: "Aluno", to: base }];
+    let page = <Student.Home student={s} />;
+    if (!b) trail.push({ label: "Início" });
+    if (b === "disciplina") { trail.push({ label: "Início", to: base }, { label: c }); page = <Student.Subject student={s} code={c} />; }
+    if (b === "horario") { trail.push({ label: "Horário" }); page = <Student.Schedule student={s} />; }
+    if (b === "historico") { trail.push({ label: "Histórico" }); page = <Student.History student={s} />; }
+    return <Shell user={{ name: s.nome, role: s.curso }} nav={nav} current={current} trail={trail}>{page}</Shell>;
   }
 
-  return <Welcome />;
+  // Administrador
+  const current = { turmas: "turmas", alunos: "alunos", professores: "professores", disciplinas: "disciplinas", historico: "alunos", mais: "mais" }[a] || "visao";
+  const nav = [
+    { key: "visao", label: "Visão geral", icon: Home, to: "admin" },
+    { key: "turmas", label: "Turmas", icon: Layers, to: "admin/turmas" },
+    { key: "alunos", label: "Alunos", icon: User, to: "admin/alunos" },
+    { key: "professores", label: "Professores", icon: Users, to: "admin/professores" },
+    { key: "disciplinas", label: "Disciplinas", icon: BookOpen, to: "admin/disciplinas" },
+  ];
+  const mobileNav = [
+    { key: "visao", label: "Início", icon: Home, to: "admin" },
+    nav[1], nav[2],
+    { key: "mais", label: "Mais", icon: MoreHorizontal, to: "admin/mais", match: ["mais", "professores", "disciplinas"] },
+  ];
+  const names = { turmas: "Turmas", alunos: "Alunos", professores: "Professores", disciplinas: "Disciplinas", historico: "Histórico escolar", busca: "Busca", mais: "Mais" };
+  const trail = [{ label: "Administrador", to: "admin" }];
+  if (!a) trail.push({ label: "Visão geral" });
+  else if (a === "turmas" && b) trail.push({ label: "Turmas", to: "admin/turmas" }, { label: b });
+  else if (a === "historico") trail.push({ label: "Alunos", to: "admin/alunos" }, { label: "Histórico escolar" });
+  else trail.push({ label: names[a] || a });
+  let page = <Admin.Overview />;
+  if (a === "turmas") page = b ? <Admin.Group code={b} /> : <Admin.Groups />;
+  if (a === "alunos") page = <Admin.People kind="aluno" />;
+  if (a === "professores") page = <Admin.People kind="professor" />;
+  if (a === "disciplinas") page = <Admin.Disciplines />;
+  if (a === "historico") page = <Admin.Transcript mat={b} />;
+  if (a === "busca") page = <Admin.Search />;
+  if (a === "mais") page = <Admin.More />;
+  return <Shell user={{ name: "Secretaria", role: "Administrador" }} nav={nav} mobileNav={mobileNav} current={current} trail={trail}>{page}</Shell>;
 }
 
-// ── Moldura das telas: menu lateral + barra do topo ──
-function Shell({ profile, name, role, id, nav, current, trail, children }) {
-  const { go, openHelp } = useApp();
-  const [q, setQ] = useState("");
-  const searchRef = useRef();
-
-  // Atalho "/" foca a busca (eficiência para quem já conhece)
-  useEffect(() => {
-    if (profile !== "admin") return;
-    const on = (e) => {
-      if (e.key === "/" && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) { e.preventDefault(); searchRef.current?.focus(); }
-    };
-    window.addEventListener("keydown", on);
-    return () => window.removeEventListener("keydown", on);
-  }, [profile]);
-
+// Pessoa da sessão não existe mais (ex.: removida pela secretaria)
+function SessionMissing() {
+  const { logout } = useApp();
   return (
-    <div className="shell" data-profile={profile}>
-      <aside className="sidebar">
-        <a className="logo" href="#/" aria-label="EDOO Acadêmico, voltar ao início">
-          <span className="logo-mark"><School size={18} aria-hidden /></span>EDOO Acadêmico
-        </a>
-        <div className="profile-chip">
-          <Avatar name={name} id={id} size={40} />
-          <div className="who"><b>{name}</b><span>{role}</span></div>
-        </div>
-        {nav.map((g) => (
-          <nav className="nav" key={g.group} aria-label={g.group}>
-            <div className="nav-label">{g.group}</div>
-            {g.items.map((it) => (
-              <button key={it.key} className="nav-item" aria-current={current === it.key ? "page" : undefined} onClick={() => go(it.to)}>
-                <it.icon size={18} aria-hidden />{it.label}
-              </button>
-            ))}
-          </nav>
-        ))}
-        <div className="sidebar-foot">
-          <button className="nav-item" onClick={openHelp}><HelpCircle size={18} aria-hidden />Ajuda <kbd style={{ marginLeft: "auto" }}>?</kbd></button>
-          <button className="nav-item" onClick={() => go("")}><LogOut size={18} aria-hidden />Trocar de perfil</button>
-        </div>
-      </aside>
-
-      <div className="main">
-        <div className="topbar">
-          <nav className="crumbs" aria-label="Você está em">
-            <button onClick={() => go("")}>Início</button>
-            {trail.map((t, i) => (
-              <span key={i} style={{ display: "contents" }}>
-                <ChevronRight size={14} aria-hidden />
-                {i === trail.length - 1 ? <span className="here" aria-current="page">{t.label}</span> : <button onClick={() => go(t.to)}>{t.label}</button>}
-              </span>
-            ))}
-          </nav>
-          <div className="topbar-right">
-            {profile === "admin" && (
-              <form onSubmit={(e) => { e.preventDefault(); if (q.trim()) { go(`admin/busca?${encodeURIComponent(q.trim())}`); setQ(""); searchRef.current.blur(); } }} style={{ width: 280 }}>
-                <SearchInput value={q} onChange={setQ} placeholder="Buscar no sistema" inputRef={searchRef} shortcut="/" />
-              </form>
-            )}
-            <Button variant="ghost" icon={HelpCircle} onClick={openHelp} aria-label="Ajuda" />
-          </div>
-        </div>
-        <main className="content" key={trail.map((t) => t.label).join("/")}>{children}</main>
+    <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24 }}>
+      <div style={{ width: "min(480px, 100%)" }}>
+        <ErrorPanel title="Não encontramos seu cadastro" onRetry={logout} retryLabel="Voltar ao login">O cadastro desta sessão pode ter sido removido pela secretaria.</ErrorPanel>
       </div>
     </div>
   );
+}
+
+// Telas com barra própria no celular (chamada, notas, prova final)
+export function useChrome({ hideNav = false, dock = false }) {
+  const { setChrome } = useApp();
+  useEffect(() => {
+    setChrome({ hideNav, dock });
+    return () => setChrome({ hideNav: false, dock: false });
+  }, [hideNav, dock, setChrome]);
 }

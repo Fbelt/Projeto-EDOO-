@@ -473,6 +473,9 @@ int main() {
     Server server;
     // Atende um pedido por vez (assim dois pedidos nunca mexem nos dados juntos)
     server.new_task_queue = [] { return new ThreadPool(1); };
+    // Uma conexão por pedido: sem isso o navegador mantém a conexão aberta, trava
+    // a única thread e, ao reusar uma conexão já fechada, o React mostra "Sem conexão"
+    server.set_keep_alive_max_count(1);
 
     addRoutes(server);
     // Entrega as telas do React já compiladas (pasta web/dist)
