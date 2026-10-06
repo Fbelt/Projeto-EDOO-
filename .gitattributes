@@ -1,0 +1,11 @@
+# Estatística de linguagens do GitHub (Linguist)
+
+# Bibliotecas de terceiros: não foram escritas pelo grupo, então não entram na contagem
+sqlite/** linguist-vendored
+api/httplib.h linguist-vendored
+
+# Interface web já compilada (gerada pelo "npm run build")
+web/dist/** linguist-generated
+
+# Os .h do projeto são C++ (sem isso o GitHub pode contar como C)
+include/*.h linguist-language=C++
