@@ -50,7 +50,7 @@ vector<vector<string>> Database::query(string sql) {
     while (sqlite3_step(stmt) == SQLITE_ROW) {
         vector<string> row;
         for (int i = 0; i < sqlite3_column_count(stmt); i++) {
-            const char* value = reinterpret_cast<const char*>(sqlite3_column_text(stmt, i));
+            const char* value = (const char*) sqlite3_column_text(stmt, i);
             if (value == nullptr) {
                 row.push_back("");  
             } else {

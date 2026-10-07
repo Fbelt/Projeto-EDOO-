@@ -10,8 +10,6 @@ Person::Person(const string& n, const string& b, const string& c, const string& 
     contato = ct;
 }
 
-Person::~Person() {}
-
 string Person::getName() const { return name; }
 string Person::getBirthday() const { return birthday; }
 string Person::getCpf() const { return cpf; }

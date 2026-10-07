@@ -18,7 +18,7 @@ private:
 
 public:
     Enrollment(Student& s);
-    virtual ~Enrollment();  
+    virtual ~Enrollment() {}  
 
     Student* getStudent();
     vector<double> getGrades();

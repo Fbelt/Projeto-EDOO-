@@ -253,7 +253,7 @@ void addRoutes(Server& server) {
         }
         if (findDiscipline(school, code) != nullptr) return fail(res, "Já existe a disciplina " + code + ".");
 
-        Discipline* d = new Discipline(code, param(req, "nome"), static_cast<int>(workload), param(req, "ementa"),
+        Discipline* d = new Discipline(code, param(req, "nome"), (int)workload, param(req, "ementa"),
                                        param(req, "temFinal") == "true");
         Teacher* t = findTeacher(school, param(req, "professor"));
         d->setTeacher(t);
@@ -273,7 +273,7 @@ void addRoutes(Server& server) {
         }
         d->setName(param(req, "nome"));
         d->setSyllabus(param(req, "ementa"));
-        d->setWorkload(static_cast<int>(workload));
+        d->setWorkload((int)workload);
         // Troca o professor responsável
         if (d->getTeacher() != nullptr) d->getTeacher()->removeDisciplina(d->getCode());
         Teacher* t = findTeacher(school, param(req, "professor"));
@@ -312,7 +312,7 @@ void addRoutes(Server& server) {
         if (findGroup(school, code) != nullptr) return fail(res, "Já existe a turma " + code + ".");
 
         ClassGroup* g = new ClassGroup(code, d, findTeacher(school, param(req, "professor")),
-                                       param(req, "semestre"), param(req, "horario"), static_cast<int>(capacity));
+                                       param(req, "semestre"), param(req, "horario"), (int)capacity);
         school.groups.push_back(g);
         ClassGroupRepository repo;
         repo.insert(*g);
@@ -386,7 +386,7 @@ void addRoutes(Server& server) {
         if (param(req, "indice") == "") {
             e->addGrade(grade);
         } else {
-            e->setGrade(static_cast<int>(toNumber(param(req, "indice"))), grade);
+            e->setGrade((int)toNumber(param(req, "indice")), grade);
         }
         EnrollmentRepository repo;
         repo.save(*g, *e);
