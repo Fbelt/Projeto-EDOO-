@@ -7,10 +7,6 @@
 
 using namespace std;
 
-// ═══════════════════════════════════════════════════════════════════
-//  Menu do Professor: só enxerga as turmas dele.
-//  Depois de mudar notas ou frequência, salva com o EnrollmentRepository.
-// ═══════════════════════════════════════════════════════════════════
 
 // Escolhe uma das turmas do professor
 ClassGroup* chooseMyGroup(SchoolData& data, Teacher& teacher, string path, string title) {

@@ -14,19 +14,6 @@
 
 using namespace std;
 
-// ═══════════════════════════════════════════════════════════════════
-//  Camada visual. Tudo aqui é só aparência: cores ANSI (24 bits),
-//  caracteres de caixa Unicode e alinhamento de colunas.
-//
-//  Decisões de design (guia de UI/UX da Loomi + Nielsen):
-//   - Um destaque por tela: título em negrito, o resto mais apagado
-//   - Ritmo de espaço fixo: recuo de 2/4 colunas, 1 linha dentro de um
-//     grupo e 2 linhas entre grupos (no terminal a régua de 8px vira
-//     a régua de colunas e linhas)
-//   - Cor nunca é o único sinal: toda mensagem e situação tem ícone e texto
-//   - Caminho "Início › Perfil › Tela" sempre visível (status do sistema)
-// ═══════════════════════════════════════════════════════════════════
-
 namespace ui {
 
 // ── Paleta ─────────────────────────────────────────────────────────
