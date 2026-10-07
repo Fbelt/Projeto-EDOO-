@@ -5,9 +5,7 @@
 
 using namespace std;
 
-// ═══════════════════════════════════════════════════════════════════
-//  Menu do Aluno: só consulta, não muda nada no banco.
-// ═══════════════════════════════════════════════════════════════════
+
 
 // Disciplinas do semestre atual: professor e horário
 void myDisciplines(SchoolData& data, Student& s) {

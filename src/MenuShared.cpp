@@ -5,10 +5,6 @@
 
 using namespace std;
 
-// ═══════════════════════════════════════════════════════════════════
-//  Telas usadas por mais de um perfil: listas para escolher,
-//  relatório da turma, histórico e horário.
-// ═══════════════════════════════════════════════════════════════════
 
 // Mostra os alunos numerados e devolve o escolhido (nullptr = voltar)
 Student* chooseStudent(vector<Student*>& list) {

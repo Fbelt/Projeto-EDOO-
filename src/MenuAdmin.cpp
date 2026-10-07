@@ -10,11 +10,6 @@
 
 using namespace std;
 
-// ═══════════════════════════════════════════════════════════════════
-//  Menu do Administrador (Secretaria)
-//  Padrão de toda ação: 1) pede os dados  2) muda o objeto na memória
-//  3) chama o repositório para salvar no banco
-// ═══════════════════════════════════════════════════════════════════
 
 // Diz se a matrícula já é usada por algum aluno OU professor
 // (no banco, os dois ficam na mesma tabela "pessoas")

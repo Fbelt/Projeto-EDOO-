@@ -51,7 +51,7 @@ namespace ui {
     string number(double value, int decimals = 1);
     string gradeText(double grade);                 // nota colorida (verde/amarelo/vermelho)
     string statusBadge(const string& status);       // "✔ Aprovado", "✖ Reprovado..."
-    string attendanceBar(double percent);           // ██████░░░░ 83%
+    string attendanceBar(double percent);           
     string upper(const string& s);
 
     // Cartões com números grandes lado a lado (painel do admin)

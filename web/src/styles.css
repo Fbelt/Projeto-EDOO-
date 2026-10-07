@@ -1,12 +1,4 @@
-/* ═══════════════════════════════════════════════════════════════
-   EDOO Acadêmico · Design system (light clean)
 
-   Regras do guia de UI/UX da Loomi:
-   · Espaçamento: só múltiplos de 8 (4 para ajuste fino)
-   · Tipografia: 36 / 30 / 24 / 20 / 18 / 16 / 14 / 12 — 14 é o tamanho da UI
-   · Contraste: texto ≥ 4.5:1 · bordas de campo e ícones ≥ 3:1
-   · Um primário por tela; cor nunca é o único sinal
-   ═══════════════════════════════════════════════════════════════ */
 
 :root {
   /* Espaço */
