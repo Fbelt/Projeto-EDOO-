@@ -15,7 +15,7 @@ private:
 
 public:
     Person(const string& n = "", const string& b = "", const string& c = "", const string& ct = "");
-    virtual ~Person() {}
+    virtual ~Person();
 
     string getName() const;
     string getBirthday() const;

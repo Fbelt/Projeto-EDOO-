@@ -9,12 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-/* ─────────────────────────────────────────────────────────────
-   Design tokens
-   · Espaçamento: régua de 8 (4 só para ajuste fino)
-   · Tipografia: 36 / 30 / 24 / 20 / 18 / 16 / 14 / 12
-   · Contraste: texto ≥ 4.5:1, bordas e ícones ≥ 3:1
-   ───────────────────────────────────────────────────────────── */
+
 :root {
   --s-4: 4px;  --s-8: 8px;  --s-16: 16px; --s-24: 24px; --s-32: 32px;
   --s-48: 48px; --s-64: 64px; --s-96: 96px; --s-128: 128px;
@@ -26,10 +21,10 @@
   --bg-raised: #121522;
   --bg-term: #0f111a;
   --line: #262b40;
-  --line-strong: #5a6386;      /* 3.3:1 sobre --bg */
-  --text: #e6e8f0;             /* 15:1 */
-  --text-2: #a3abc4;           /* 8.3:1 */
-  --text-3: #8b93ad;           /* 6.1:1 */
+  --line-strong: #5a6386;      
+  --text: #e6e8f0;             
+  --text-2: #a3abc4;           
+  --text-3: #8b93ad;           
 
   --violet: #a78bfa;
   --indigo: #818cf8;
@@ -60,7 +55,6 @@ img, svg { max-width: 100%; }
 
 .wrap { max-width: 1120px; margin: 0 auto; padding-inline: var(--s-24); }
 
-/* ── Navegação ───────────────────────────────────────────── */
 .nav {
   position: sticky; top: 0; z-index: 10;
   backdrop-filter: blur(12px);
@@ -78,7 +72,6 @@ img, svg { max-width: 100%; }
 .nav-links a:hover, .nav-links a:focus-visible { color: var(--text); }
 @media (max-width: 720px) { .nav-links { display: none; } }
 
-/* ── Hero ────────────────────────────────────────────────── */
 .hero { position: relative; padding-block: var(--s-96) var(--s-64); overflow: hidden; }
 .hero::before {
   content: ""; position: absolute; inset: -40% -10% auto; height: 640px; z-index: -1;
@@ -112,7 +105,6 @@ h1 {
 .btn-primary { background: var(--text); color: var(--bg); }
 .btn-ghost { border: 1px solid var(--line-strong); color: var(--text); }
 
-/* ── Terminal ────────────────────────────────────────────── */
 .demo { margin-top: var(--s-64); }
 .tabs { display: flex; gap: var(--s-8); margin-bottom: var(--s-16); flex-wrap: wrap; }
 .tab {
@@ -150,7 +142,6 @@ h1 {
 .cursor { display: inline-block; width: 8px; height: 1.1em; vertical-align: text-bottom; background: var(--text); animation: blink 1s steps(1) infinite; }
 @keyframes blink { 50% { opacity: 0; } }
 
-/* ── Seções ──────────────────────────────────────────────── */
 section { padding-block: var(--s-96); border-top: 1px solid var(--line); }
 .kicker { font: 600 var(--t-meta)/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--violet); }
 h2 { margin: var(--s-16) 0 var(--s-8); font-size: var(--t-page); letter-spacing: -0.02em; line-height: 1.2; }
@@ -167,7 +158,6 @@ h2 { margin: var(--s-16) 0 var(--s-8); font-size: var(--t-page); letter-spacing:
 .card li::before { content: "→ "; color: var(--text-3); }
 .icon { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font: 700 var(--t-card) var(--mono); color: var(--bg); }
 
-/* Conceitos de OOP */
 .oop { display: grid; gap: var(--s-16); }
 .oop-row {
   display: grid; grid-template-columns: 200px 1fr; gap: var(--s-24); align-items: start;
@@ -183,7 +173,6 @@ code, .code, pre { font-family: var(--mono); font-size: 13px; font-variant-ligat
 .k { color: var(--violet); } .ty { color: var(--teal); } .cm { color: var(--text-3); } .fn { color: var(--info); }
 @media (max-width: 720px) { .oop-row { grid-template-columns: 1fr; gap: var(--s-8); } }
 
-/* UML (caixas desenhadas em HTML/CSS) */
 .uml {
   padding: var(--s-32) var(--s-16); border-radius: var(--radius); border: 1px solid var(--line); background: var(--bg-raised);
   display: flex; flex-wrap: wrap; gap: var(--s-32); justify-content: center; align-items: flex-start;

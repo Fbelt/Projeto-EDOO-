@@ -27,7 +27,7 @@ public:
     // Remove uma disciplina pelo nome/código
     void removeDisciplina(const string& d);
 
-    // Exibe os dados do professor (sobrescreve Person)
+    // Exibe os dados do professor 
     void exibirInfo() const override;
 };
 

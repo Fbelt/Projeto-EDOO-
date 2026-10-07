@@ -7,14 +7,10 @@
 
 using namespace std;
 
-// Conexão com o banco de dados (padrão Singleton):
-// só existe um Database no programa todo.
-// Para usar: Database::getInstance()
 class Database {
 private:
     sqlite3* db;
 
-    // Construtor privado: ninguém de fora consegue criar outro Database
     Database();
 
 public:
@@ -24,11 +20,9 @@ public:
     void close();
     void createTables();
 
-    // Roda um comando que não devolve nada (INSERT, UPDATE, DELETE...)
+
     void execute(string sql);
 
-    // Roda um SELECT e devolve as linhas.
-    // Cada linha é um vector com o valor de cada coluna, em texto.
     vector<vector<string>> query(string sql);
 };
 

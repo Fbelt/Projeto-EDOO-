@@ -8,17 +8,17 @@
 
 using namespace std;
 
-// Cadastro de alunos e professores (para o Integrante 3 integrar com o banco)
-// Guarda ponteiros — não copie os objetos, pois Enrollment usa o endereço dos alunos
+// Cadastro de alunos e professores 
+// Guarda ponteiros 
 class PersonCRUD {
 private:
     vector<Student*> alunos;
     vector<Teacher*> professores;
 
 public:
-    ~PersonCRUD(); // libera a memória dos ponteiros
+    ~PersonCRUD(); 
 
-    // ── Alunos ──────────────────────────────────────────────────────
+    // Alunos
     void adicionarAluno(const string& nome, const string& nascimento,
                         const string& cpf, const string& matricula, const string& curso);
     Student* buscarAluno(const string& matricula);
@@ -26,7 +26,7 @@ public:
     void listarAlunos() const;
     vector<Student*>& getAlunos();
 
-    // ── Professores ─────────────────────────────────────────────────
+    // Professores
     void adicionarProfessor(const string& nome, const string& nascimento,
                             const string& cpf, const string& matricula);
     Teacher* buscarProfessor(const string& matricula);

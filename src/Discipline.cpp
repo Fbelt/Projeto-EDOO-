@@ -10,7 +10,7 @@ Discipline::Discipline(string c, string n, int w, string s, bool f) {
     workload = w;
     syllabus = s;
     hasFinalExam = f;
-    teacher = nullptr;  // ainda sem professor
+    teacher = nullptr; 
 }
 
 string Discipline::getCode() { return code; }

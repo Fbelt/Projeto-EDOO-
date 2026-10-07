@@ -3,8 +3,7 @@
 
 using namespace std;
 
-// Salva a matrícula. Para não complicar, apaga o que já existia
-// e grava tudo de novo a partir do objeto.
+// Salva a matrícula
 void EnrollmentRepository::save(ClassGroup& group, Enrollment& e) {
     remove(group, *e.getStudent());
 
@@ -40,8 +39,7 @@ void EnrollmentRepository::remove(ClassGroup& group, Student& s) {
     db.execute("DELETE FROM frequencia" + where);
 }
 
-// Lê os alunos da turma no banco e matricula eles de novo,
-// repondo as notas e a frequência salvas
+// Lê os alunos da turma no banco e matricula eles de novo
 void EnrollmentRepository::loadInto(ClassGroup& group, vector<Student*>& students) {
     Database& db = Database::getInstance();
     vector<vector<string>> rows = db.query(
@@ -55,13 +53,13 @@ void EnrollmentRepository::loadInto(ClassGroup& group, vector<Student*>& student
                 Enrollment* e = group.findEnrollment(*s);
                 string where = " WHERE aluno = '" + row[0] + "' AND turma = '" + group.getCode() + "'";
 
-                // Notas (stod transforma texto em número decimal: "8.5" vira 8.5)
+                // Notas 
                 vector<vector<string>> grades = db.query("SELECT valor FROM notas" + where + ";");
                 for (vector<string> grade : grades) {
                     e->addGrade(stod(grade[0]));
                 }
 
-                // Frequência: registra as aulas de novo (presenças primeiro, depois faltas)
+                // Frequência: registra as aulas de novo 
                 vector<vector<string>> attendance = db.query("SELECT aulas, presencas FROM frequencia" + where + ";");
                 if (attendance.size() > 0) {
                     int classes = stoi(attendance[0][0]);
@@ -71,7 +69,7 @@ void EnrollmentRepository::loadInto(ClassGroup& group, vector<Student*>& student
                     }
                 }
 
-                // Nota da prova final (-1 = não fez)
+                // Nota da prova final
                 if (stod(row[1]) != -1) {
                     e->setFinalGrade(stod(row[1]));
                 }

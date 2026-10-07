@@ -11,6 +11,8 @@ Enrollment::Enrollment(Student& s) {
     finalGrade = -1;
 }
 
+Enrollment::~Enrollment() {}
+
 Student* Enrollment::getStudent() { return student; }
 vector<double> Enrollment::getGrades() { return grades; }
 int Enrollment::getClasses() { return classes; }

@@ -10,7 +10,7 @@ void StudentRepository::insert(Student& s) {
         s.getCpf() + "', '" + s.getBirthday() + "', '" + s.getContato() + "', '" + s.getCurso() + "');");
 }
 
-// Atualiza os dados do aluno (procura pela matrícula)
+// Atualiza os dados do aluno
 void StudentRepository::update(Student& s) {
     Database::getInstance().execute(
         "UPDATE pessoas SET nome = '" + s.getName() + "', cpf = '" + s.getCpf() +
@@ -23,7 +23,7 @@ void StudentRepository::remove(string matricula) {
     Database::getInstance().execute("DELETE FROM pessoas WHERE matricula = '" + matricula + "';");
 }
 
-// Busca o aluno pela matrícula (nullptr = não encontrou)
+// Busca o aluno pela matrícula 
 Student* StudentRepository::findByMatricula(string matricula) {
     vector<Student*> found = search("matricula = '" + matricula + "'");
     if (found.size() == 0) {
@@ -32,8 +32,7 @@ Student* StudentRepository::findByMatricula(string matricula) {
     return found[0];
 }
 
-// Busca alunos cujo nome contém o texto (ex: "jo" acha "Joao").
-// O % no LIKE significa "qualquer coisa". Com name = "" traz todos.
+// Busca alunos cujo nome contém o texto 
 vector<Student*> StudentRepository::findByName(string name) {
     return search("nome LIKE '%" + name + "%'");
 }
@@ -46,8 +45,6 @@ vector<Student*> StudentRepository::search(string condition) {
 
     vector<Student*> students;
     for (vector<string> row : rows) {
-        // row[0] = matricula, row[1] = nome, row[2] = cpf,
-        // row[3] = nascimento, row[4] = contato, row[5] = curso
         Student* s = new Student(row[1], row[3], row[2], row[0], row[5]);
         s->setContato(row[4]);
         students.push_back(s);

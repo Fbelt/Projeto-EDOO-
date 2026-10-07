@@ -16,7 +16,7 @@ bool isDatabaseEmpty() {
 }
 
 // Matricula o aluno na turma e já lança duas notas e as presenças.
-// presences de classes aulas (ex: 9 de 10)
+// presences de classes aulas 
 void addResults(ClassGroup& group, Student& s, double g1, double g2, int presences, int classes) {
     group.enroll(s);
     Enrollment* e = group.findEnrollment(s);
@@ -27,7 +27,7 @@ void addResults(ClassGroup& group, Student& s, double g1, double g2, int presenc
     }
 }
 
-// Matricula o aluno numa turma que ainda não começou (sem notas nem aulas)
+// Matricula o aluno numa turma que ainda não começou 
 void addEmpty(ClassGroup& group, Student& s) {
     group.enroll(s);
 }
@@ -35,11 +35,11 @@ void addEmpty(ClassGroup& group, Student& s) {
 // Cria os objetos de exemplo e salva tudo usando os repositórios
 void seedDatabase() {
     if (!isDatabaseEmpty()) {
-        return;  // já tem dados, não faz nada
+        return;  
     }
     cout << "Banco vazio: criando dados de exemplo..." << endl;
 
-    // Professores (Tiago não tem disciplina: dá para testar remover)
+    // Professores 
     Teacher ana("Ana Souza", "1980-04-10", "111.111.111-11", "P001");
     ana.setContato("ana@cin.ufpe.br");
     Teacher carlos("Carlos Lima", "1975-09-22", "222.222.222-22", "P002");
@@ -53,7 +53,7 @@ void seedDatabase() {
     Teacher tiago("Tiago Barros", "1990-08-09", "123.456.789-00", "P006");
     tiago.setContato("tiago@cin.ufpe.br");
 
-    // Alunos (Sofia acabou de entrar: ainda não tem turmas)
+    // Alunos 
     Student joao("Joao Silva", "2005-03-15", "333.333.333-33", "2024001", "Ciencia da Computacao");
     joao.setContato("joao@ufpe.br");
     Student maria("Maria Oliveira", "2004-11-02", "444.444.444-44", "2024002", "Engenharia da Computacao");
@@ -87,7 +87,7 @@ void seedDatabase() {
     Student sofia("Sofia Barbosa", "2007-01-29", "303.303.303-33", "2025006", "Ciencia da Computacao");
     sofia.setContato("sofia@ufpe.br");
 
-    // Disciplinas (as com "true" têm prova final; CIN0165 ainda não tem professor)
+    // Disciplinas 
     Discipline ip("CIN0130", "Introducao a Programacao", 60, "Logica e algoritmos", false);
     ip.setTeacher(&carlos);
     Discipline edoo("CIN0135", "Estruturas de Dados Orientadas a Objetos", 60, "Classes, heranca e polimorfismo", true);
@@ -112,14 +112,14 @@ void seedDatabase() {
 
     // Turmas do semestre passado (2026.1): já encerradas, com situação final calculada
     ClassGroup ipGroup("IP-2026.1", &ip, &carlos, "2026.1", "SEG 8h-10h", 30);
-    addResults(ipGroup, joao, 8, 9, 10, 10);       // aprovado
-    addResults(ipGroup, maria, 9, 8, 6, 10);       // reprovado por falta
-    addResults(ipGroup, pedro, 5, 4, 9, 10);       // reprovado por nota
-    addResults(ipGroup, lucas, 7, 7.5, 10, 10);    // aprovado
-    addResults(ipGroup, gabriel, 6, 6, 8, 10);     // reprovado por nota
-    addResults(ipGroup, larissa, 9.5, 10, 10, 10); // aprovado
-    addResults(ipGroup, mateus, 7, 7, 8, 10);      // aprovado raspando (média 7)
-    addResults(ipGroup, camila, 8, 6, 7, 10);      // reprovado por falta
+    addResults(ipGroup, joao, 8, 9, 10, 10);       
+    addResults(ipGroup, maria, 9, 8, 6, 10);       
+    addResults(ipGroup, pedro, 5, 4, 9, 10);       
+    addResults(ipGroup, lucas, 7, 7.5, 10, 10);    
+    addResults(ipGroup, gabriel, 6, 6, 8, 10);    
+    addResults(ipGroup, larissa, 9.5, 10, 10, 10); 
+    addResults(ipGroup, mateus, 7, 7, 8, 10);      
+    addResults(ipGroup, camila, 8, 6, 7, 10);   
     ipGroup.finish();
 
     ClassGroup calcGroup("CALC-2026.1", &calc, &rafael, "2026.1", "QUA 14h-16h", 20);
@@ -132,15 +132,15 @@ void seedDatabase() {
 
     ClassGroup bdOld("BD-2026.1", &bd, &beatriz, "2026.1", "QUI 8h-10h", 15);
     addResults(bdOld, pedro, 7, 8, 9, 10);
-    addResults(bdOld, mateus, 5, 6, 9, 10);        // vai para a prova final
-    addResults(bdOld, gabriel, 4, 5, 9, 10);       // vai para a prova final
+    addResults(bdOld, mateus, 5, 6, 9, 10);      
+    addResults(bdOld, gabriel, 4, 5, 9, 10);     
     addResults(bdOld, larissa, 9, 9, 10, 10);
     bdOld.findEnrollment(mateus)->setFinalGrade(8);
     bdOld.findEnrollment(gabriel)->setFinalGrade(3);
     bdOld.finish();
 
     // Turmas do semestre atual (2026.2): abertas
-    ClassGroup edooGroup("EDOO-2026.2", &edoo, &ana, "2026.2", "TER 10h-12h", 3);   // lotada
+    ClassGroup edooGroup("EDOO-2026.2", &edoo, &ana, "2026.2", "TER 10h-12h", 3);   
     addResults(edooGroup, joao, 7.5, 6, 5, 6);
     addResults(edooGroup, maria, 4, 5, 6, 6);
     addResults(edooGroup, julia, 9, 10, 6, 6);
@@ -173,7 +173,7 @@ void seedDatabase() {
     addResults(esGroup, beatrizF, 7.5, 8, 6, 6);
     addResults(esGroup, mateus, 5, 6, 5, 6);
 
-    ClassGroup soGroup("SO-2026.2", &so, &ana, "2026.2", "SEG 14h-16h", 20);   // ainda sem aulas
+    ClassGroup soGroup("SO-2026.2", &so, &ana, "2026.2", "SEG 14h-16h", 20); 
     addEmpty(soGroup, gabriel);
     addEmpty(soGroup, camila);
     addEmpty(soGroup, felipe);
@@ -184,7 +184,7 @@ void seedDatabase() {
     addResults(iaGroup, julia, 8, 9, 6, 6);
     addResults(iaGroup, lucas, 7, 6, 6, 6);
 
-    ClassGroup ihcGroup("IHC-2026.2", &ihc, &helena, "2026.2", "TER 16h-18h", 30);   // vazia
+    ClassGroup ihcGroup("IHC-2026.2", &ihc, &helena, "2026.2", "TER 16h-18h", 30);   
 
     ClassGroup calcNew("CALC-2026.2", &calc, &rafael, "2026.2", "QUA 16h-18h", 30);
     addResults(calcNew, pedro, 5, 6, 5, 6);

@@ -15,7 +15,7 @@ Database& Database::getInstance() {
     return instance;
 }
 
-// Abre o arquivo do banco (se não existir, o SQLite cria)
+// Abre o arquivo do banco 
 bool Database::open(string path) {
     if (sqlite3_open(path.c_str(), &db) != SQLITE_OK) {
         cout << "Erro ao abrir o banco" << endl;
@@ -50,9 +50,9 @@ vector<vector<string>> Database::query(string sql) {
     while (sqlite3_step(stmt) == SQLITE_ROW) {
         vector<string> row;
         for (int i = 0; i < sqlite3_column_count(stmt); i++) {
-            const char* value = (const char*) sqlite3_column_text(stmt, i);
+            const char* value = reinterpret_cast<const char*>(sqlite3_column_text(stmt, i));
             if (value == nullptr) {
-                row.push_back("");  // coluna vazia
+                row.push_back("");  
             } else {
                 row.push_back(value);
             }
@@ -64,10 +64,10 @@ vector<vector<string>> Database::query(string sql) {
     return rows;
 }
 
-// Cria as tabelas, se ainda não existirem
+// Cria as tabelas
 void Database::createTables() {
-    // Alunos e professores ficam na mesma tabela (os dois são Pessoa).
-    // "tipo" diz se é 'aluno' ou 'professor'. Professor fica com curso vazio.
+    // Alunos e professores ficam na mesma tabela 
+    // "tipo" diz se é 'aluno' ou 'professor'
     execute("CREATE TABLE IF NOT EXISTS pessoas ("
             "matricula TEXT PRIMARY KEY, tipo TEXT, nome TEXT, cpf TEXT,"
             "nascimento TEXT, contato TEXT, curso TEXT);");

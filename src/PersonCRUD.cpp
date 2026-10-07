@@ -9,7 +9,7 @@ PersonCRUD::~PersonCRUD() {
     for (Teacher* p : professores) delete p;
 }
 
-// Cria e cadastra um novo aluno (impede matrícula duplicada)
+// Cria e cadastra um novo aluno 
 void PersonCRUD::adicionarAluno(const string& nome, const string& nascimento,
                                  const string& cpf, const string& matricula, const string& curso) {
     if (buscarAluno(matricula) != nullptr) {
@@ -19,7 +19,7 @@ void PersonCRUD::adicionarAluno(const string& nome, const string& nascimento,
     alunos.push_back(new Student(nome, nascimento, cpf, matricula, curso));
 }
 
-// Busca aluno pela matrícula (nullptr = não encontrado)
+// Busca aluno pela matrícula 
 Student* PersonCRUD::buscarAluno(const string& matricula) {
     for (Student* a : alunos) {
         if (a->getMatricula() == matricula) return a;
@@ -54,7 +54,7 @@ void PersonCRUD::listarAlunos() const {
 
 vector<Student*>& PersonCRUD::getAlunos() { return alunos; }
 
-// Cria e cadastra um novo professor (impede matrícula duplicada)
+// Cria e cadastra um novo professor 
 void PersonCRUD::adicionarProfessor(const string& nome, const string& nascimento,
                                      const string& cpf, const string& matricula) {
     if (buscarProfessor(matricula) != nullptr) {
@@ -64,7 +64,7 @@ void PersonCRUD::adicionarProfessor(const string& nome, const string& nascimento
     professores.push_back(new Teacher(nome, nascimento, cpf, matricula));
 }
 
-// Busca professor pela matrícula funcional (nullptr = não encontrado)
+// Busca professor pela matrícula funcional 
 Teacher* PersonCRUD::buscarProfessor(const string& matricula) {
     for (Teacher* p : professores) {
         if (p->getMatriculaFuncional() == matricula) return p;

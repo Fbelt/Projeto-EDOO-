@@ -6,8 +6,6 @@ using namespace std;
 FinalExamEnrollment::FinalExamEnrollment(Student& s) : Enrollment(s) {}
 
 // Regra com final:
-// média >= 7 aprova, média < 3 reprova,
-// entre 3 e 7 faz a final e passa se (média + final) / 2 >= 5
 string FinalExamEnrollment::calculateStatus() {
     if (calculateAttendance() < 75) {
         return "Reprovado por falta";

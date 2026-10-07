@@ -11,14 +11,14 @@ using namespace std;
 class Enrollment {
 private:
     Student* student;
-    vector<double> grades;  // notas
-    int classes;            // total de aulas
-    int presences;          // aulas em que o aluno estava presente
-    double finalGrade;      // nota da prova final (-1 = não fez)
+    vector<double> grades;  
+    int classes;            
+    int presences;       
+    double finalGrade;    
 
 public:
     Enrollment(Student& s);
-    virtual ~Enrollment() {}  // necessário por causa do "virtual" abaixo
+    virtual ~Enrollment();  
 
     Student* getStudent();
     vector<double> getGrades();

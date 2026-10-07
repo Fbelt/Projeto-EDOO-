@@ -7,7 +7,7 @@
 
 using namespace std;
 
-// Salva e busca professores no banco (tabela pessoas, tipo = 'professor')
+// Salva e busca professores no banco 
 class TeacherRepository {
 private:
     vector<Teacher*> search(string condition);
@@ -19,7 +19,7 @@ public:
 
     // As buscas criam os professores com new: quem usar deve dar delete depois
     Teacher* findByMatricula(string matricula);
-    vector<Teacher*> findByName(string name);  // name = "" traz todos
+    vector<Teacher*> findByName(string name); 
 };
 
 #endif

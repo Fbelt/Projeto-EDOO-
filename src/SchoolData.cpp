@@ -7,14 +7,13 @@
 using namespace std;
 
 // Carrega tudo do banco para a memória.
-// A ordem importa: turmas precisam dos alunos, professores e disciplinas
 void loadData(SchoolData& data) {
     StudentRepository studentRepo;
     TeacherRepository teacherRepo;
     DisciplineRepository disciplineRepo;
     ClassGroupRepository groupRepo;
 
-    data.students = studentRepo.findByName("");   // "" = todos
+    data.students = studentRepo.findByName("");   
     data.teachers = teacherRepo.findByName("");
     data.disciplines = disciplineRepo.findByName("", data.teachers);
     data.groups = groupRepo.findAll(data.disciplines, data.teachers, data.students);
@@ -67,7 +66,7 @@ ClassGroup* findGroup(SchoolData& data, string code) {
     return nullptr;
 }
 
-// Deixa o texto todo em minúsculo (só letras sem acento)
+// Deixa o texto todo em minúsculo 
 string toLower(string s) {
     for (char& c : s) {
         if (c >= 'A' && c <= 'Z') c = c - 'A' + 'a';
@@ -75,7 +74,7 @@ string toLower(string s) {
     return s;
 }
 
-// Busca sem diferenciar maiúscula/minúscula: "jo" acha "Joao"
+// Busca sem diferenciar maiúscula/minúscula
 bool containsIgnoreCase(string text, string piece) {
     return toLower(text).find(toLower(piece)) != string::npos;
 }

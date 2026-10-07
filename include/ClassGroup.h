@@ -13,14 +13,14 @@ using namespace std;
 // Turma: uma disciplina oferecida em um semestre
 class ClassGroup {
 private:
-    string code;              // ex: "EDOO-2026.2"
+    string code;             
     Discipline* discipline;
     Teacher* teacher;
-    string semester;          // ex: "2026.2"
-    string schedule;          // ex: "TER 10h-12h"
-    int capacity;             // limite de vagas
-    bool finished;            // true = semestre acabou
-    vector<Enrollment*> enrollments;  // matrículas (criadas com new)
+    string semester;        
+    string schedule;        
+    int capacity;            
+    bool finished;           
+    vector<Enrollment*> enrollments;  
 
 public:
     ClassGroup(string c, Discipline* d, Teacher* t, string sem, string sch, int cap);

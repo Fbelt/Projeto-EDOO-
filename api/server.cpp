@@ -1,20 +1,3 @@
-// ═══════════════════════════════════════════════════════════════════
-//  Servidor da interface web (bônus)
-//
-//  O React (navegador) não consegue chamar classes C++ direto.
-//  Então este programa abre um "endereço" (http://localhost:8080)
-//  e responde aos pedidos do React com texto em JSON.
-//
-//  Ideia geral:  React pede  →  servidor chama as classes do grupo  →  responde JSON
-//
-//  Todas as regras (vagas, média, aprovação...) continuam nas classes
-//  do grupo. Este arquivo só recebe o pedido, chama o método certo,
-//  salva com o repositório e devolve o resultado.
-//
-//  Biblioteca usada: cpp-httplib (api/httplib.h), baixada do GitHub.
-//  Não foi escrita pelo grupo, assim como o SQLite.
-// ═══════════════════════════════════════════════════════════════════
-
 #include "httplib.h"
 #include <iostream>
 #include <sstream>
@@ -30,13 +13,8 @@
 using namespace std;
 using namespace httplib;
 
-// Todos os dados do sistema, carregados do banco quando o servidor liga
 SchoolData school;
 
-// ─────────────────────────── Montando o JSON ───────────────────────────
-// JSON é só texto. Ex: {"nome": "Joao", "media": 8.5}
-
-// Texto entre aspas, trocando " e \ para não quebrar o JSON
 string text(string s) {
     string out = "\"";
     for (char c : s) {
@@ -46,7 +24,6 @@ string text(string s) {
     return out + "\"";
 }
 
-// Número decimal (ex: 8.5)
 string number(double value) {
     ostringstream out;
     out << value;
@@ -112,7 +89,6 @@ string groupJson(ClassGroup& g) {
            ", \"encerrada\": " + jsonBool(g.isFinished()) + ", \"matriculas\": [" + enrollments + "]}";
 }
 
-// Tudo de uma vez: o React pede isso ao abrir e depois de cada mudança
 string allJson() {
     string students = "", teachers = "", disciplines = "", groups = "";
     for (Student* s : school.students) students += (students == "" ? "" : ", ") + studentJson(*s);
@@ -122,8 +98,6 @@ string allJson() {
     return "{\"alunos\": [" + students + "], \"professores\": [" + teachers + "], \"disciplinas\": [" +
            disciplines + "], \"turmas\": [" + groups + "]}";
 }
-
-// ─────────────────────────── Respostas ───────────────────────────
 
 // Deu certo: devolve a mensagem e os dados atualizados
 void ok(Response& res, string message) {
@@ -166,9 +140,6 @@ void eraseFrom(vector<T*>& list, T* item) {
     }
 }
 
-// ─────────────────────────── Rotas ───────────────────────────
-// Cada rota é um endereço. GET = só lê. POST = muda alguma coisa.
-
 void addRoutes(Server& server) {
 
     // Lê tudo
@@ -176,7 +147,7 @@ void addRoutes(Server& server) {
         res.set_content(allJson(), "application/json");
     });
 
-    // ── Alunos ──────────────────────────────────────────────────
+    // Alunos 
     server.Post("/api/alunos/criar", [](const Request& req, Response& res) {
         string matricula = param(req, "matricula");
         if (invalidText(matricula) || invalidText(param(req, "nome")) || invalidText(param(req, "curso"))) {
@@ -227,7 +198,7 @@ void addRoutes(Server& server) {
         ok(res, "Aluno " + name + " removido.");
     });
 
-    // ── Professores ─────────────────────────────────────────────
+    // Professores
     server.Post("/api/professores/criar", [](const Request& req, Response& res) {
         string matricula = param(req, "matricula");
         if (invalidText(matricula) || invalidText(param(req, "nome"))) {
@@ -273,7 +244,7 @@ void addRoutes(Server& server) {
         ok(res, "Professor " + name + " removido.");
     });
 
-    // ── Disciplinas ─────────────────────────────────────────────
+    // Disciplinas
     server.Post("/api/disciplinas/criar", [](const Request& req, Response& res) {
         string code = param(req, "codigo");
         double workload = toNumber(param(req, "cargaHoraria"));
@@ -282,7 +253,7 @@ void addRoutes(Server& server) {
         }
         if (findDiscipline(school, code) != nullptr) return fail(res, "Já existe a disciplina " + code + ".");
 
-        Discipline* d = new Discipline(code, param(req, "nome"), (int)workload, param(req, "ementa"),
+        Discipline* d = new Discipline(code, param(req, "nome"), static_cast<int>(workload), param(req, "ementa"),
                                        param(req, "temFinal") == "true");
         Teacher* t = findTeacher(school, param(req, "professor"));
         d->setTeacher(t);
@@ -302,7 +273,7 @@ void addRoutes(Server& server) {
         }
         d->setName(param(req, "nome"));
         d->setSyllabus(param(req, "ementa"));
-        d->setWorkload((int)workload);
+        d->setWorkload(static_cast<int>(workload));
         // Troca o professor responsável
         if (d->getTeacher() != nullptr) d->getTeacher()->removeDisciplina(d->getCode());
         Teacher* t = findTeacher(school, param(req, "professor"));
@@ -328,7 +299,7 @@ void addRoutes(Server& server) {
         ok(res, "Disciplina " + code + " removida.");
     });
 
-    // ── Turmas ──────────────────────────────────────────────────
+    // Turmas
     server.Post("/api/turmas/criar", [](const Request& req, Response& res) {
         Discipline* d = findDiscipline(school, param(req, "disciplina"));
         string code = param(req, "codigo");
@@ -341,7 +312,7 @@ void addRoutes(Server& server) {
         if (findGroup(school, code) != nullptr) return fail(res, "Já existe a turma " + code + ".");
 
         ClassGroup* g = new ClassGroup(code, d, findTeacher(school, param(req, "professor")),
-                                       param(req, "semestre"), param(req, "horario"), (int)capacity);
+                                       param(req, "semestre"), param(req, "horario"), static_cast<int>(capacity));
         school.groups.push_back(g);
         ClassGroupRepository repo;
         repo.insert(*g);
@@ -372,7 +343,7 @@ void addRoutes(Server& server) {
         ok(res, "Turma " + code + " removida.");
     });
 
-    // ── Matrículas ──────────────────────────────────────────────
+    // Matrículas
     server.Post("/api/matriculas/criar", [](const Request& req, Response& res) {
         ClassGroup* g = findGroup(school, param(req, "turma"));
         Student* s = findStudent(school, param(req, "aluno"));
@@ -400,8 +371,7 @@ void addRoutes(Server& server) {
         ok(res, s->getName() + " saiu da turma " + g->getCode() + ".");
     });
 
-    // ── Notas e frequência ──────────────────────────────────────
-    // Lança uma nota nova (indice vazio) ou corrige a nota da posição "indice"
+    // Notas e frequência 
     server.Post("/api/notas", [](const Request& req, Response& res) {
         ClassGroup* g = findGroup(school, param(req, "turma"));
         Student* s = findStudent(school, param(req, "aluno"));
@@ -416,7 +386,7 @@ void addRoutes(Server& server) {
         if (param(req, "indice") == "") {
             e->addGrade(grade);
         } else {
-            e->setGrade((int)toNumber(param(req, "indice")), grade);
+            e->setGrade(static_cast<int>(toNumber(param(req, "indice"))), grade);
         }
         EnrollmentRepository repo;
         repo.save(*g, *e);
@@ -461,8 +431,6 @@ void addRoutes(Server& server) {
     });
 }
 
-// ─────────────────────────── main ───────────────────────────
-
 int main() {
     Database& db = Database::getInstance();
     if (!db.open("data/escola.db")) return 1;
@@ -471,14 +439,11 @@ int main() {
     loadData(school);
 
     Server server;
-    // Atende um pedido por vez (assim dois pedidos nunca mexem nos dados juntos)
+
     server.new_task_queue = [] { return new ThreadPool(1); };
-    // Uma conexão por pedido: sem isso o navegador mantém a conexão aberta, trava
-    // a única thread e, ao reusar uma conexão já fechada, o React mostra "Sem conexão"
     server.set_keep_alive_max_count(1);
 
     addRoutes(server);
-    // Entrega as telas do React já compiladas (pasta web/dist)
     server.set_mount_point("/", "./web/dist");
 
     cout << "Servidor ligado. Abra no navegador: http://localhost:8080" << endl;

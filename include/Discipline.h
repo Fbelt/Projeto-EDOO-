@@ -6,15 +6,15 @@
 
 using namespace std;
 
-// Disciplina (ex: CIN0135 - EDOO)
+// Disciplina 
 class Discipline {
 private:
     string code;
     string name;
-    int workload;       // carga horária
-    string syllabus;    // ementa
-    Teacher* teacher;   // professor responsável
-    bool hasFinalExam;  // true = tem prova final
+    int workload;       
+    string syllabus;    
+    Teacher* teacher;   
+    bool hasFinalExam;  
 
 public:
     Discipline(string c, string n, int w, string s, bool f);

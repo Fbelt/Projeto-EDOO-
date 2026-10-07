@@ -22,7 +22,7 @@ public:
     void setMatricula(const string& mat);
     void setCurso(const string& cur);
 
-    // Exibe os dados do aluno (sobrescreve Person)
+    // Exibe os dados do aluno 
     void exibirInfo() const override;
 };
 

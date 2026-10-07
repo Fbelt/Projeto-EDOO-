@@ -3,14 +3,14 @@
 
 using namespace std;
 
-// Cadastra um professor novo (professor não tem curso, então fica '')
+// Cadastra um professor novo
 void TeacherRepository::insert(Teacher& t) {
     Database::getInstance().execute(
         "INSERT INTO pessoas VALUES ('" + t.getMatriculaFuncional() + "', 'professor', '" + t.getName() + "', '" +
         t.getCpf() + "', '" + t.getBirthday() + "', '" + t.getContato() + "', '');");
 }
 
-// Atualiza os dados do professor (procura pela matrícula)
+// Atualiza os dados do professor 
 void TeacherRepository::update(Teacher& t) {
     Database::getInstance().execute(
         "UPDATE pessoas SET nome = '" + t.getName() + "', cpf = '" + t.getCpf() +
@@ -23,7 +23,7 @@ void TeacherRepository::remove(string matricula) {
     Database::getInstance().execute("DELETE FROM pessoas WHERE matricula = '" + matricula + "';");
 }
 
-// Busca o professor pela matrícula (nullptr = não encontrou)
+// Busca o professor pela matrícula 
 Teacher* TeacherRepository::findByMatricula(string matricula) {
     vector<Teacher*> found = search("matricula = '" + matricula + "'");
     if (found.size() == 0) {
@@ -32,7 +32,7 @@ Teacher* TeacherRepository::findByMatricula(string matricula) {
     return found[0];
 }
 
-// Busca professores cujo nome contém o texto. Com name = "" traz todos.
+// Busca professores cujo nome contém o texto
 vector<Teacher*> TeacherRepository::findByName(string name) {
     return search("nome LIKE '%" + name + "%'");
 }
@@ -45,7 +45,6 @@ vector<Teacher*> TeacherRepository::search(string condition) {
 
     vector<Teacher*> teachers;
     for (vector<string> row : rows) {
-        // row[0] = matricula, row[1] = nome, row[2] = cpf, row[3] = nascimento, row[4] = contato
         Teacher* t = new Teacher(row[1], row[3], row[2], row[0]);
         t->setContato(row[4]);
         teachers.push_back(t);
