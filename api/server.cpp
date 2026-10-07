@@ -115,9 +115,9 @@ string param(const Request& req, string name) {
     return req.get_param_value(name);
 }
 
-// Texto vazio ou com apóstrofo (o ' quebra o SQL dos repositórios)
+// Campo obrigatório vazio (o ' é tratado pelos repositórios com Database::escape)
 bool invalidText(string s) {
-    return s == "" || s.find('\'') != string::npos;
+    return s == "";
 }
 
 // Converte texto em número. Devolve -1 se não for um número
@@ -151,7 +151,7 @@ void addRoutes(Server& server) {
     server.Post("/api/alunos/criar", [](const Request& req, Response& res) {
         string matricula = param(req, "matricula");
         if (invalidText(matricula) || invalidText(param(req, "nome")) || invalidText(param(req, "curso"))) {
-            return fail(res, "Preencha matrícula, nome e curso (sem apóstrofo).");
+            return fail(res, "Preencha matrícula, nome e curso.");
         }
         if (findStudent(school, matricula) != nullptr || findTeacher(school, matricula) != nullptr) {
             return fail(res, "Já existe uma pessoa com a matrícula " + matricula + ".");
@@ -169,7 +169,7 @@ void addRoutes(Server& server) {
         Student* s = findStudent(school, param(req, "matricula"));
         if (s == nullptr) return fail(res, "Aluno não encontrado.");
         if (invalidText(param(req, "nome")) || invalidText(param(req, "curso"))) {
-            return fail(res, "Nome e curso são obrigatórios (sem apóstrofo).");
+            return fail(res, "Nome e curso são obrigatórios.");
         }
         s->setName(param(req, "nome"));
         s->setCurso(param(req, "curso"));
@@ -202,7 +202,7 @@ void addRoutes(Server& server) {
     server.Post("/api/professores/criar", [](const Request& req, Response& res) {
         string matricula = param(req, "matricula");
         if (invalidText(matricula) || invalidText(param(req, "nome"))) {
-            return fail(res, "Preencha matrícula e nome (sem apóstrofo).");
+            return fail(res, "Preencha matrícula e nome.");
         }
         if (findStudent(school, matricula) != nullptr || findTeacher(school, matricula) != nullptr) {
             return fail(res, "Já existe uma pessoa com a matrícula " + matricula + ".");
@@ -218,7 +218,7 @@ void addRoutes(Server& server) {
     server.Post("/api/professores/editar", [](const Request& req, Response& res) {
         Teacher* t = findTeacher(school, param(req, "matricula"));
         if (t == nullptr) return fail(res, "Professor não encontrado.");
-        if (invalidText(param(req, "nome"))) return fail(res, "O nome é obrigatório (sem apóstrofo).");
+        if (invalidText(param(req, "nome"))) return fail(res, "O nome é obrigatório.");
         t->setName(param(req, "nome"));
         t->setContato(param(req, "contato"));
         TeacherRepository repo;

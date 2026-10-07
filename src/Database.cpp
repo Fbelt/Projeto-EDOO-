@@ -39,6 +39,16 @@ void Database::execute(string sql) {
     }
 }
 
+// No SQL, o ' fecha o texto. Para gravar um ' de verdade (ex: "D'Avila"), ele vira ''
+string Database::escape(string s) {
+    string out = "";
+    for (char c : s) {
+        if (c == '\'') out += '\'';
+        out += c;
+    }
+    return out;
+}
+
 // Roda um SELECT e guarda o resultado num vector de linhas
 vector<vector<string>> Database::query(string sql) {
     vector<vector<string>> rows;

@@ -14,27 +14,29 @@ string teacherMatricula(Discipline& d) {
 // Cadastra uma disciplina nova
 void DisciplineRepository::insert(Discipline& d) {
     Database::getInstance().execute(
-        "INSERT INTO disciplinas VALUES ('" + d.getCode() + "', '" + d.getName() + "', " +
-        to_string(d.getWorkload()) + ", '" + d.getSyllabus() + "', " +
-        to_string(d.getHasFinalExam()) + ", '" + teacherMatricula(d) + "');");
+        "INSERT INTO disciplinas VALUES ('" + Database::escape(d.getCode()) + "', '" +
+        Database::escape(d.getName()) + "', " + to_string(d.getWorkload()) + ", '" +
+        Database::escape(d.getSyllabus()) + "', " + to_string(d.getHasFinalExam()) + ", '" +
+        Database::escape(teacherMatricula(d)) + "');");
 }
 
 // Atualiza a disciplina
 void DisciplineRepository::update(Discipline& d) {
     Database::getInstance().execute(
-        "UPDATE disciplinas SET nome = '" + d.getName() + "', carga_horaria = " + to_string(d.getWorkload()) +
-        ", ementa = '" + d.getSyllabus() + "', professor = '" + teacherMatricula(d) +
-        "' WHERE codigo = '" + d.getCode() + "';");
+        "UPDATE disciplinas SET nome = '" + Database::escape(d.getName()) + "', carga_horaria = " +
+        to_string(d.getWorkload()) + ", ementa = '" + Database::escape(d.getSyllabus()) +
+        "', professor = '" + Database::escape(teacherMatricula(d)) +
+        "' WHERE codigo = '" + Database::escape(d.getCode()) + "';");
 }
 
 // Apaga a disciplina
 void DisciplineRepository::remove(string code) {
-    Database::getInstance().execute("DELETE FROM disciplinas WHERE codigo = '" + code + "';");
+    Database::getInstance().execute("DELETE FROM disciplinas WHERE codigo = '" + Database::escape(code) + "';");
 }
 
-// Busca a disciplina pelo código 
+// Busca a disciplina pelo código
 Discipline* DisciplineRepository::findByCode(string code, vector<Teacher*>& teachers) {
-    vector<Discipline*> found = search("codigo = '" + code + "'", teachers);
+    vector<Discipline*> found = search("codigo = '" + Database::escape(code) + "'", teachers);
     if (found.size() == 0) {
         return nullptr;
     }
@@ -43,7 +45,7 @@ Discipline* DisciplineRepository::findByCode(string code, vector<Teacher*>& teac
 
 // Busca disciplinas cujo nome contém o texto
 vector<Discipline*> DisciplineRepository::findByName(string name, vector<Teacher*>& teachers) {
-    return search("nome LIKE '%" + name + "%'", teachers);
+    return search("nome LIKE '%" + Database::escape(name) + "%'", teachers);
 }
 
 // Faz o SELECT com a condição recebida e cria uma Discipline para cada linha

@@ -49,7 +49,7 @@ Ao abrir, escolha um perfil para entrar.
 
 Para testar com os dados de exemplo: professor **Ana Souza** (turma EDOO, aberta) e aluno **Joao Silva** (tem uma turma encerrada e uma aberta).
 
-## Interface web (bônus)
+## Interface web
 
 O sistema tem uma interface gráfica feita em **React**. Ela usa as classes C++ e o banco SQLite.
 

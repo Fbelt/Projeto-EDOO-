@@ -24,6 +24,9 @@ public:
     void execute(string sql);
 
     vector<vector<string>> query(string sql);
+
+    // Prepara um texto para ir dentro de '...' no SQL (troca ' por '')
+    static string escape(string s);
 };
 
 #endif

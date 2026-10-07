@@ -8,8 +8,8 @@ void EnrollmentRepository::save(ClassGroup& group, Enrollment& e) {
     remove(group, *e.getStudent());
 
     Database& db = Database::getInstance();
-    string student = e.getStudent()->getMatricula();
-    string turma = group.getCode();
+    string student = Database::escape(e.getStudent()->getMatricula());
+    string turma = Database::escape(group.getCode());
 
     db.execute("INSERT INTO matriculas VALUES ('" + student + "', '" + turma + "', " +
                to_string(e.getFinalGrade()) + ");");
@@ -33,7 +33,8 @@ void EnrollmentRepository::saveAll(ClassGroup& group) {
 // Apaga a matrícula do aluno na turma, junto com as notas e a frequência
 void EnrollmentRepository::remove(ClassGroup& group, Student& s) {
     Database& db = Database::getInstance();
-    string where = " WHERE aluno = '" + s.getMatricula() + "' AND turma = '" + group.getCode() + "';";
+    string where = " WHERE aluno = '" + Database::escape(s.getMatricula()) +
+                   "' AND turma = '" + Database::escape(group.getCode()) + "';";
     db.execute("DELETE FROM matriculas" + where);
     db.execute("DELETE FROM notas" + where);
     db.execute("DELETE FROM frequencia" + where);
@@ -43,7 +44,7 @@ void EnrollmentRepository::remove(ClassGroup& group, Student& s) {
 void EnrollmentRepository::loadInto(ClassGroup& group, vector<Student*>& students) {
     Database& db = Database::getInstance();
     vector<vector<string>> rows = db.query(
-        "SELECT aluno, nota_final FROM matriculas WHERE turma = '" + group.getCode() + "';");
+        "SELECT aluno, nota_final FROM matriculas WHERE turma = '" + Database::escape(group.getCode()) + "';");
 
     for (vector<string> row : rows) {
         // Procura o aluno na lista pela matrícula
@@ -51,7 +52,8 @@ void EnrollmentRepository::loadInto(ClassGroup& group, vector<Student*>& student
             if (s->getMatricula() == row[0]) {
                 group.enroll(*s);
                 Enrollment* e = group.findEnrollment(*s);
-                string where = " WHERE aluno = '" + row[0] + "' AND turma = '" + group.getCode() + "'";
+                string where = " WHERE aluno = '" + Database::escape(row[0]) +
+                               "' AND turma = '" + Database::escape(group.getCode()) + "'";
 
                 // Notas 
                 vector<vector<string>> grades = db.query("SELECT valor FROM notas" + where + ";");

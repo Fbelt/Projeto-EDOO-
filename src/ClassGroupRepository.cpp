@@ -15,22 +15,23 @@ string teacherMatricula(ClassGroup& g) {
 // Cadastra uma turma nova 
 void ClassGroupRepository::insert(ClassGroup& g) {
     Database::getInstance().execute(
-        "INSERT INTO turmas VALUES ('" + g.getCode() + "', '" + g.getDiscipline()->getCode() + "', '" +
-        teacherMatricula(g) + "', '" + g.getSemester() + "', '" + g.getSchedule() + "', " +
+        "INSERT INTO turmas VALUES ('" + Database::escape(g.getCode()) + "', '" +
+        Database::escape(g.getDiscipline()->getCode()) + "', '" + Database::escape(teacherMatricula(g)) + "', '" +
+        Database::escape(g.getSemester()) + "', '" + Database::escape(g.getSchedule()) + "', " +
         to_string(g.getCapacity()) + ", " + to_string(g.isFinished()) + ");");
 }
 
-// Atualiza a turma 
+// Atualiza a turma
 void ClassGroupRepository::update(ClassGroup& g) {
     Database::getInstance().execute(
-        "UPDATE turmas SET professor = '" + teacherMatricula(g) + "', horario = '" + g.getSchedule() +
-        "', vagas = " + to_string(g.getCapacity()) + ", encerrada = " + to_string(g.isFinished()) +
-        " WHERE codigo = '" + g.getCode() + "';");
+        "UPDATE turmas SET professor = '" + Database::escape(teacherMatricula(g)) + "', horario = '" +
+        Database::escape(g.getSchedule()) + "', vagas = " + to_string(g.getCapacity()) +
+        ", encerrada = " + to_string(g.isFinished()) + " WHERE codigo = '" + Database::escape(g.getCode()) + "';");
 }
 
 // Apaga a turma
 void ClassGroupRepository::remove(string code) {
-    Database::getInstance().execute("DELETE FROM turmas WHERE codigo = '" + code + "';");
+    Database::getInstance().execute("DELETE FROM turmas WHERE codigo = '" + Database::escape(code) + "';");
 }
 
 // Carrega todas as turmas do banco
