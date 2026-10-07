@@ -2,7 +2,7 @@
 
 Projeto prático da disciplina **CIN0135 - Estruturas de Dados Orientadas a Objetos (EDOO)**, CIn/UFPE.
 
-É um sistema feito em **C++** com banco de dados **SQLite**, que pode ser usado pelo menu no terminal ou por uma interface web em React, para cuidar de alunos, professores, disciplinas, turmas e matrículas, com notas, frequência e situação de cada aluno (aprovado ou reprovado).
+É um sistema feito em **C++** com banco de dados **SQLite**, usado por uma interface web em React, para cuidar de alunos, professores, disciplinas, turmas e matrículas, com notas, frequência e situação de cada aluno (aprovado ou reprovado).
 
 ## Links
 
@@ -13,36 +13,6 @@ Projeto prático da disciplina **CIN0135 - Estruturas de Dados Orientadas a Obje
 ## Como compilar e rodar
 
 Você precisa do **g++** (MinGW no Windows). Na pasta do projeto:
-
-```
-mingw32-make
-./sistema
-```
-
-No Linux/Mac, troque `mingw32-make` por `make`.
-
-A primeira compilação demora uns 15 segundos porque compila o SQLite junto. Depois disso fica rápido.
-
-Na primeira vez que roda, o programa cria o banco em `data/escola.db` e coloca dados de exemplo nele. Para recomeçar do zero, é só apagar esse arquivo.
-
-> Rode sempre de dentro da pasta do projeto (o caminho do banco é `data/escola.db`).
-> O menu usa cores e caracteres Unicode: no Windows, use o **Windows Terminal** (o `cmd` antigo pode mostrar símbolos estranhos).
-
-## Como usar
-
-Ao abrir, escolha um perfil. Em qualquer tela, `0` volta e `?` abre a ajuda.
-
-| Perfil | O que dá para fazer |
-|---|---|
-| **Administrador** | CRUD de alunos, professores e disciplinas · criar, encerrar e remover turmas · matricular e desmatricular · busca · relatório de turma · histórico escolar |
-| **Professor** | ver turmas e alunos · lançar e editar notas · fazer chamada · lançar prova final · encerrar turma |
-| **Aluno** | disciplinas do semestre · notas · frequência · situação · horário semanal · histórico escolar |
-
-Para testar com os dados de exemplo: professor **Ana Souza** (turma EDOO, aberta) e aluno **Joao Silva** (tem uma turma encerrada e uma aberta).
-
-## Interface web (bônus)
-
-Além do menu no terminal, o sistema tem uma interface gráfica feita em **React**. Ela usa as mesmas classes C++ e o mesmo banco.
 
 **1. Compilar o servidor**
 
@@ -58,7 +28,30 @@ mingw32-make servidor    # Windows
 .\servidor.exe           # Windows (PowerShell)
 ```
 
-**3. Abrir no navegador:** http://localhost:8080 (o mesmo login de teste: professor **Ana Souza** ou aluno **Joao Silva**).
+**3. Abrir no navegador:** http://localhost:8080
+
+A primeira compilação demora uns 15 segundos porque compila o SQLite junto. Depois disso fica rápido.
+
+Na primeira vez que roda, o programa cria o banco em `data/escola.db` e coloca dados de exemplo nele. Para recomeçar do zero, é só apagar esse arquivo.
+
+> Rode sempre de dentro da pasta do projeto (o caminho do banco é `data/escola.db`).
+> No Windows, o servidor precisa de um MinGW com suporte a threads (por exemplo o do MSYS2 ou o WinLibs).
+
+## Como usar
+
+Ao abrir, escolha um perfil para entrar.
+
+| Perfil | O que dá para fazer |
+|---|---|
+| **Administrador** | CRUD de alunos, professores e disciplinas · criar, encerrar e remover turmas · matricular e desmatricular · busca · relatório de turma · histórico escolar |
+| **Professor** | ver turmas e alunos · lançar e editar notas · fazer chamada · lançar prova final · encerrar turma |
+| **Aluno** | disciplinas do semestre · notas · frequência · situação · horário semanal · histórico escolar |
+
+Para testar com os dados de exemplo: professor **Ana Souza** (turma EDOO, aberta) e aluno **Joao Silva** (tem uma turma encerrada e uma aberta).
+
+## Interface web (bônus)
+
+O sistema tem uma interface gráfica feita em **React**. Ela usa as classes C++ e o banco SQLite.
 
 Como funciona: o navegador não consegue chamar classes C++ direto. Por isso o `servidor` (em `api/server.cpp`) fica ouvindo em `localhost:8080`. Ele entrega as telas (a pasta `web/dist`) e responde os pedidos do React em JSON, chamando as classes do grupo. As regras de aprovação, de vagas etc. continuam todas no C++.
 
@@ -73,13 +66,11 @@ npm run build            # no fim, atualiza a pasta web/dist
 
 Em modo de desenvolvimento, os pedidos para `/api` são repassados para o servidor na porta 8080 (veja `web/vite.config.js`).
 
-> No Windows, o servidor precisa de um MinGW com suporte a threads (por exemplo o do MSYS2 ou o WinLibs).
-
 ## Estrutura do projeto
 
 ```
 include/   arquivos .h (declaração de cada classe)
-src/       arquivos .cpp (código de cada classe) e o main.cpp
+src/       arquivos .cpp (código de cada classe)
 sqlite/    biblioteca SQLite, baixada de sqlite.org (não foi escrita pelo grupo)
 data/      onde fica o arquivo do banco (escola.db)
 docs/      explicação da parte de cada integrante e o site (GitHub Pages)
@@ -105,9 +96,6 @@ Cada classe tem um par de arquivos: um `.h` e um `.cpp` com o mesmo nome.
 | `Database` | Conexão com o banco SQLite (Singleton) |
 | `StudentRepository`, `TeacherRepository`, `DisciplineRepository`, `ClassGroupRepository`, `EnrollmentRepository` | Salvam e buscam cada tipo de objeto no banco |
 | `SchoolData` | Guarda na memória tudo o que foi carregado do banco (alunos, professores, disciplinas, turmas) |
-| Menus (`MenuMain`, `MenuAdmin`, `MenuTeacher`, `MenuStudent`, `MenuShared`) | As telas de cada perfil |
-| `Input` | Validação do que o usuário digita (números, notas, CPF, data, sim/não) |
-| `ui` | Parte visual do terminal: cores, tabelas e caixas |
 
 ## Conceitos de Orientação a Objetos
 
@@ -141,7 +129,6 @@ As classes do sistema não têm SQL dentro delas. Quem conversa com o banco são
 - [x] Pessoa, Aluno, Professor e Factory
 - [x] Disciplina, Turma e Matrícula, com as regras de aprovação
 - [x] Banco de dados SQLite, repositórios e dados de exemplo
-- [x] Menu no terminal (Administrador, Professor e Aluno)
 - [x] Interface web em React (bônus)
 - [x] GitHub Pages (falta o link do vídeo)
 - [ ] Relatório e vídeo
@@ -153,4 +140,4 @@ As classes do sistema não têm SQL dentro delas. Quem conversa com o banco são
 | Pedro Henrique | Pessoa, Aluno, Professor e Factory | [`docs/integrante1.md`](docs/integrante1.md) |
 | Felipe Belfort | Disciplina, Turma, Matrícula, GitHub Pages e documentação | [`docs/integrante2.md`](docs/integrante2.md) |
 | Gabriel Geller | Estrutura do projeto e banco de dados (SQLite) | [`docs/integrante3.md`](docs/integrante3.md) |
-| Luis Henrique | Menu no terminal, relatório e vídeo | [`docs/integrante4.md`](docs/integrante4.md) |
+| Luis Henrique | Interface web, relatório e vídeo | [`docs/integrante4.md`](docs/integrante4.md) |

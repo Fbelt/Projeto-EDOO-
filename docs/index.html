@@ -260,22 +260,10 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: var(--s-16); justify-content
   <div class="wrap">
     <span class="eyebrow"><span class="dot" aria-hidden="true"></span>CIN0135 · Estruturas de Dados Orientadas a Objetos · CIn/UFPE</span>
     <h1>Gestão acadêmica<br><span class="grad">feita com orientação a objetos.</span></h1>
-    <p class="lead">Alunos, professores, disciplinas, turmas, notas e frequência em um sistema em C++ com banco SQLite, usado pelo menu no terminal ou por uma interface web em React. A situação de cada aluno é calculada automaticamente.</p>
+    <p class="lead">Alunos, professores, disciplinas, turmas, notas e frequência em um sistema em C++ com banco SQLite, usado por uma interface web em React. A situação de cada aluno é calculada automaticamente.</p>
     <div class="actions">
       <a class="btn btn-primary" href="https://github.com/Fbelt/Projeto-EDOO-">Ver código no GitHub ↗</a>
       <a class="btn btn-ghost" href="#video">▶ Assistir ao vídeo</a>
-    </div>
-
-    <div class="demo reveal">
-      <div class="tabs" role="tablist" aria-label="Escolha um perfil para ver a tela">
-        <button class="tab" role="tab" data-k="admin" aria-selected="true">Administrador</button>
-        <button class="tab" role="tab" data-k="teacher" aria-selected="false">Professor</button>
-        <button class="tab" role="tab" data-k="student" aria-selected="false">Aluno</button>
-      </div>
-      <div class="term" role="tabpanel">
-        <div class="term-bar" aria-hidden="true"><i></i><i></i><i></i><span>./sistema</span></div>
-<pre id="screen" aria-live="polite"></pre>
-      </div>
     </div>
   </div>
 </header>
@@ -285,7 +273,7 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: var(--s-16); justify-content
   <div class="wrap">
     <span class="kicker">Funcionalidades</span>
     <h2>Três perfis, cada um com o que precisa</h2>
-    <p class="section-lead">Cada perfil tem uma cor própria no terminal, e o caminho “Início › Perfil › Tela” fica sempre no topo para o usuário saber onde está.</p>
+    <p class="section-lead">Cada perfil tem as suas próprias telas, com só o que ele precisa para trabalhar.</p>
     <div class="grid">
       <article class="card reveal">
         <div class="icon" style="background:var(--indigo)">A</div>
@@ -344,7 +332,7 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: var(--s-16); justify-content
       <div class="oop-row reveal">
         <h3>Polimorfismo</h3>
         <div>
-          <p><code>calculateStatus()</code> é virtual: <code>FinalExamEnrollment</code> troca a regra de aprovação. No menu, o mesmo ponteiro <code>Person*</code> mostra a ficha certa de aluno ou de professor.</p>
+          <p><code>calculateStatus()</code> é virtual: <code>FinalExamEnrollment</code> troca a regra de aprovação. No sistema, o mesmo ponteiro <code>Person*</code> mostra a ficha certa de aluno ou de professor.</p>
 <code class="code"><span class="ty">Person</span>* p = aluno;
 p-><span class="fn">exibirInfo</span>();          <span class="cm">// roda Student::exibirInfo()</span>
 e-><span class="fn">calculateStatus</span>();     <span class="cm">// regra normal ou com prova final</span></code>
@@ -445,19 +433,16 @@ e-><span class="fn">calculateStatus</span>();     <span class="cm">// regra norm
     <div class="steps">
       <div class="step"><div><b>Clonar o repositório</b><code class="code">git clone https://github.com/Fbelt/Projeto-EDOO-.git
 cd Projeto-EDOO-</code></div></div>
-      <div class="step"><div><b>Compilar</b><p>A primeira vez demora uns 15 segundos, porque compila o SQLite junto.</p><code class="code">make            <span class="cm"># Linux / Mac</span>
-mingw32-make    <span class="cm"># Windows</span></code></div></div>
-      <div class="step"><div><b>Rodar</b><p>Na primeira execução, o banco <code>data/escola.db</code> é criado com dados de exemplo.</p><code class="code">./sistema</code></div></div>
+      <div class="step"><div><b>Compilar</b><p>A primeira vez demora uns 15 segundos, porque compila o SQLite junto.</p><code class="code">make servidor            <span class="cm"># Linux / Mac</span>
+mingw32-make servidor    <span class="cm"># Windows</span></code></div></div>
+      <div class="step"><div><b>Rodar</b><p>Ele fica ouvindo em <code>localhost:8080</code> e entrega as telas e os dados. Na primeira execução, o banco <code>data/escola.db</code> é criado com dados de exemplo.</p><code class="code">./servidor        <span class="cm"># Linux / Mac</span>
+.\servidor.exe    <span class="cm"># Windows (PowerShell)</span></code></div></div>
+      <div class="step"><div><b>Abrir no navegador</b><p>Para testar, entre como professor <b>Ana Souza</b> ou aluno <b>Joao Silva</b>.</p><code class="code">http://localhost:8080</code></div></div>
     </div>
 
     <h3 class="run-sub">Interface web (bônus)</h3>
-    <p class="section-lead">A interface em React usa as mesmas classes C++ e o mesmo banco. A pasta <code>web/dist</code> já vem compilada, então não precisa de Node.js para usar. No Windows, o MinGW precisa ter suporte a threads (ex: MSYS2 ou WinLibs).</p>
+    <p class="section-lead">A interface em React usa as classes C++ e o banco SQLite. A pasta <code>web/dist</code> já vem compilada, então não precisa de Node.js para usar. No Windows, o MinGW precisa ter suporte a threads (ex: MSYS2 ou WinLibs).</p>
     <div class="steps">
-      <div class="step"><div><b>Compilar o servidor</b><code class="code">make servidor            <span class="cm"># Linux / Mac</span>
-mingw32-make servidor    <span class="cm"># Windows</span></code></div></div>
-      <div class="step"><div><b>Ligar o servidor</b><p>Ele fica ouvindo em <code>localhost:8080</code> e entrega as telas e os dados.</p><code class="code">./servidor        <span class="cm"># Linux / Mac</span>
-.\servidor.exe    <span class="cm"># Windows (PowerShell)</span></code></div></div>
-      <div class="step"><div><b>Abrir no navegador</b><p>Para testar, entre como professor <b>Ana Souza</b> ou aluno <b>Joao Silva</b>.</p><code class="code">http://localhost:8080</code></div></div>
       <div class="step"><div><b>Só para quem for mudar as telas</b><p>Com o servidor ligado, rode o React em modo de desenvolvimento e abra a URL que o Vite mostrar (normalmente <code>localhost:5173</code>). No fim, <code>npm run build</code> atualiza o <code>web/dist</code>.</p><code class="code">cd web
 npm install
 npm run dev</code></div></div>
@@ -474,7 +459,7 @@ npm run dev</code></div></div>
       <div class="person reveal"><div class="avatar" style="background:var(--violet)">PH</div><b>Pedro Henrique</b><span>Pessoa, Aluno, Professor e Factory</span></div>
       <div class="person reveal"><div class="avatar" style="background:var(--indigo)">FB</div><b>Felipe Belfort</b><span>Disciplina, Turma, Matrícula, GitHub Pages e documentação</span></div>
       <div class="person reveal"><div class="avatar" style="background:var(--teal)">GG</div><b>Gabriel Geller</b><span>Estrutura do projeto e banco SQLite</span></div>
-      <div class="person reveal"><div class="avatar" style="background:var(--orchid)">LH</div><b>Luis Henrique</b><span>Interface de console, relatório e vídeo</span></div>
+      <div class="person reveal"><div class="avatar" style="background:var(--orchid)">LH</div><b>Luis Henrique</b><span>Interface web, relatório e vídeo</span></div>
     </div>
   </div>
 </section>
@@ -488,93 +473,6 @@ npm run dev</code></div></div>
 </footer>
 
 <script>
-// ── Telas do terminal (baseadas na saída real do programa) ──
-const B = s => `<span class="c-brd">${s}</span>`;
-const M = s => `<span class="c-mut">${s}</span>`;
-const head = (pill, cls, path, last) =>
-  `  <span class="${cls}">◆ EDOO</span>${M(" Acadêmico")}${" ".repeat(46 - pill.length)}<span class="pill ${cls === 'c-ind' ? 'ind' : cls === 'c-tea' ? 'tea' : 'orc'}"> ${pill} </span>
-  ${M("Início › " + path)}<span class="c-b">${last}</span>
-  ${B("─".repeat(66))}
-
-`;
-
-const screens = {
-  admin:
-head("ADMINISTRADOR", "c-ind", "", "Administrador") +
-`  <span class="c-ind">▍</span><span class="c-b">Painel da Secretaria</span>
-    ${M("Visão geral do sistema")}
-
-  ${B("╭─────────────╮ ╭─────────────╮ ╭─────────────╮ ╭─────────────╮")}
-  ${B("│")} <span class="c-ind">4</span>           ${B("│")} ${B("│")} <span class="c-ind">2</span>           ${B("│")} ${B("│")} <span class="c-ind">2</span>           ${B("│")} ${B("│")} <span class="c-ind">33%</span>         ${B("│")}
-  ${B("│")} ${M("alunos")}      ${B("│")} ${B("│")} ${M("professores")} ${B("│")} ${B("│")} ${M("disciplinas")} ${B("│")} ${B("│")} ${M("aprovação")}   ${B("│")}
-  ${B("╰─────────────╯ ╰─────────────╯ ╰─────────────╯ ╰─────────────╯")}
-
-  ${M("CADASTROS")} ${B("─".repeat(56))}
-     <span class="c-ind">1</span> ${B("│")} Alunos            ${M("listar, cadastrar, editar, remover")}
-     <span class="c-ind">2</span> ${B("│")} Professores       ${M("listar, cadastrar, editar, remover")}
-     <span class="c-ind">3</span> ${B("│")} Disciplinas       ${M("listar, cadastrar, editar, remover")}
-
-  ${M("TURMAS")} ${B("─".repeat(59))}
-     <span class="c-ind">4</span> ${B("│")} Turmas            ${M("criar, encerrar, remover")}
-     <span class="c-ind">5</span> ${B("│")} Matrículas        ${M("matricular e desmatricular")}
-
-     ${M("0")} ${B("│")} ${M("← Trocar de perfil")}
-
-  <span class="c-ind">❯</span> Escolha uma opção${M(":")} <span class="cursor"></span>`,
-
-  teacher:
-head("PROFESSOR", "c-tea", "Professor › Diário › ", "EDOO-2026.2") +
-`  <span class="c-tea">▍</span><span class="c-b">Estruturas de Dados Orientadas a Objetos</span>
-    ${M("EDOO-2026.2  ·  2026.2  ·  TER 10h-12h  ·  Prof. Ana Souza")}
-
-  ${B("╭────────────────┬────────────┬───────┬─────────────────┬──────────────────╮")}
-  ${B("│")} <span class="c-tea">Aluno</span>          ${B("│")} <span class="c-tea">Notas</span>      ${B("│")} <span class="c-tea">Média</span> ${B("│")} <span class="c-tea">Frequência</span>      ${B("│")} <span class="c-tea">Previsão</span>         ${B("│")}
-  ${B("├────────────────┼────────────┼───────┼─────────────────┼──────────────────┤")}
-  ${B("│")} Joao Silva     ${B("│")} 7.5 ${M("·")} 6.0  ${B("│")}   <span class="c-warn">6.8</span> ${B("│")} <span class="c-good">████████</span>${B("░░")}  83% ${B("│")} <span class="c-warn">⚑ Em prova final</span> ${B("│")}
-  ${B("│")} Maria Oliveira ${B("│")} 4.0 ${M("·")} 5.0  ${B("│")}   <span class="c-warn">4.5</span> ${B("│")} <span class="c-good">██████████</span> 100% ${B("│")} <span class="c-warn">⚑ Em prova final</span> ${B("│")}
-  ${B("│")} Julia Costa    ${B("│")} 9.0 ${M("·")} 10.0 ${B("│")}   <span class="c-good">9.5</span> ${B("│")} <span class="c-good">██████████</span> 100% ${B("│")} <span class="c-good">✔ Aprovado</span>       ${B("│")}
-  ${B("╰────────────────┴────────────┴───────┴─────────────────┴──────────────────╯")}
-
-  ${B("╭───────────────────╮ ╭───────────────────╮ ╭───────────────────╮")}
-  ${B("│")} <span class="c-tea">6.9</span>               ${B("│")} ${B("│")} <span class="c-tea">1 de 3</span>            ${B("│")} ${B("│")} <span class="c-tea">33%</span>               ${B("│")}
-  ${B("│")} ${M("média da turma")}    ${B("│")} ${B("│")} ${M("aprovados (prev.)")} ${B("│")} ${B("│")} ${M("aprovação (prev.)")} ${B("│")}
-  ${B("╰───────────────────╯ ╰───────────────────╯ ╰───────────────────╯")}
-
-  ${M("Regra: média ≥ 7 aprova · < 3 reprova · entre 3 e 7 faz prova final")}
-
-  ${M("Pressione ENTER para continuar…")} <span class="cursor"></span>`,
-
-  student:
-head("ALUNO", "c-orc", "Aluno › ", "Horário") +
-`  <span class="c-orc">▍</span><span class="c-b">Horário semanal</span>
-    ${M("Turmas do semestre atual")}
-
-  ${B("╭─────────┬─────────┬─────────┬─────────┬─────────┬─────────╮")}
-  ${B("│")} <span class="c-orc">Horário</span> ${B("│")} <span class="c-orc">SEG</span>     ${B("│")} <span class="c-orc">TER</span>     ${B("│")} <span class="c-orc">QUA</span>     ${B("│")} <span class="c-orc">QUI</span>     ${B("│")} <span class="c-orc">SEX</span>     ${B("│")}
-  ${B("├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤")}
-  ${B("│")} 8h-10h  ${B("│")} <span class="c-orc">CIN0130</span> ${B("│")}   ${M("·")}     ${B("│")} <span class="c-orc">CIN0130</span> ${B("│")}   ${M("·")}     ${B("│")}   ${M("·")}     ${B("│")}
-  ${B("│")} 10h-12h ${B("│")}   ${M("·")}     ${B("│")} <span class="c-orc">CIN0135</span> ${B("│")}   ${M("·")}     ${B("│")} <span class="c-orc">CIN0135</span> ${B("│")}   ${M("·")}     ${B("│")}
-  ${B("╰─────────┴─────────┴─────────┴─────────┴─────────┴─────────╯")}
-
-  <span class="c-orc">CIN0130</span>  Introducao a Programacao
-  <span class="c-orc">CIN0135</span>  Estruturas de Dados Orientadas a Objetos
-
-  ${M("SITUAÇÃO")} ${B("─".repeat(57))}
-    Estruturas de Dados OO   <span class="c-info">◷ Cursando</span>     ${M("previsão")} <span class="c-warn">⚑ Em prova final</span>
-    Introducao a Programacao <span class="c-good">✔ Aprovado</span>     ${M("média")} 8.5
-
-  ${M("Pressione ENTER para continuar…")} <span class="cursor"></span>`
-};
-
-const screen = document.getElementById("screen");
-const tabs = document.querySelectorAll(".tab");
-function show(key) {
-  screen.innerHTML = screens[key];
-  tabs.forEach(t => t.setAttribute("aria-selected", t.dataset.k === key));
-}
-tabs.forEach(t => t.addEventListener("click", () => show(t.dataset.k)));
-show("admin");
-
 // ── Vídeo: quando o VIDEO_ID for preenchido, mostra o player ──
 const box = document.getElementById("video-box");
 const id = box.dataset.videoId;
